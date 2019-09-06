@@ -1,0 +1,32 @@
+<html><b>- FOR THE PURPOSE AND ABOUT THIS PROGRAM</b></html>
+<html>check <b>About</b>. Make sure that you checked it first.</html>
+
+<html><b>- UNICODE DOOM FONT CREATOR </b></html>
+    creates GZDoom font in newer format - 
+    console font, small font, big font or big upper font    
+    in zip archive (.pk3) file for GZDoom which needs to be included
+    upon starting the game (Global.Autoload).
+    UDFC creates GZDoom font from preexisting installed font on your OS
+    (which came in True Type Font .ttf extension and are installed on the OS).
+    Each character in the archive is one PNG file with features user chosen to be.
+    Many features are available to the user, including:
+    - Installed Font as a base,
+    - Character range,
+    - Character cell size multiplier,
+    - Colors,
+    - Palette,
+    - Additional effects (gradient, outline and anti-aliasing),        
+
+<html><b>- FONT PREVIEW </b><html>
+    At any time user can preview font which would 
+    generate anyways by pressing Preview 
+
+<html><b>- FONT GENERATION AKA JOB </b><html>
+    1. By clicking "Output Directory..." then "GO";
+    2. By choosing "Export As..." in the file menu and then when file is chosen
+       confirming it with output directory.
+    Way (1) and (2) are alternative and the outcome is the same 
+    - one .pk3 file is generated.
+
+    At any time user can stop the job by pressing "STOP" or in the file menu.
+    Program is gonna stop at the next iteration and .pk3 archive will be created.        
