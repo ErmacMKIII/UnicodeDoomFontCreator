@@ -156,7 +156,7 @@ public class GUI extends javax.swing.JFrame {
         fileExporter.setDialogType(javax.swing.JFileChooser.CUSTOM_DIALOG);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Unicode Doom Font Creator");
+        setTitle("Unicode Doom Font Creator - IKAROS");
         setResizable(false);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
