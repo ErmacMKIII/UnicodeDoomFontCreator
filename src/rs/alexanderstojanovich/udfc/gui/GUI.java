@@ -87,6 +87,7 @@ public class GUI extends javax.swing.JFrame {
         compList.add(fileExport);
         compList.add(fileExportAs);
         compList.add(fileSTOP);
+        compList.add(fileReset);
 
         this.guiLogic = new GUILogic(this.palettePreview, this.jobProgress, compList);
     }
@@ -120,6 +121,7 @@ public class GUI extends javax.swing.JFrame {
         fontPreviewButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         fontTestTextField = new javax.swing.JTextField();
+        udfc_suppd_label = new javax.swing.JLabel();
         effectsPanel = new javax.swing.JPanel();
         fgLabel = new javax.swing.JLabel();
         fgButton = new javax.swing.JButton();
@@ -156,7 +158,7 @@ public class GUI extends javax.swing.JFrame {
         fileExporter.setDialogType(javax.swing.JFileChooser.CUSTOM_DIALOG);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Unicode Doom Font Creator - IKAROS");
+        setTitle("Unicode Doom Font Creator - JAGUAR");
         setResizable(false);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
@@ -185,7 +187,6 @@ public class GUI extends javax.swing.JFrame {
         });
 
         fontSizeLabel.setText("Size:");
-        fontSizeLabel.setEnabled(false);
 
         fontSize.setModel(new javax.swing.SpinnerNumberModel(12, 1, 40, 1));
         fontSize.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -241,53 +242,61 @@ public class GUI extends javax.swing.JFrame {
 
         fontTestTextField.setText("Quick Brown Fox Jumps Over The Lazy Dog");
 
+        udfc_suppd_label.setIcon(new javax.swing.ImageIcon(getClass().getResource("/rs/alexanderstojanovich/udfc/res/udfc_suppd.png"))); // NOI18N
+
         javax.swing.GroupLayout fontPanelLayout = new javax.swing.GroupLayout(fontPanel);
         fontPanel.setLayout(fontPanelLayout);
         fontPanelLayout.setHorizontalGroup(
             fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(fontPanelLayout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(fontPanelLayout.createSequentialGroup()
-                        .addGap(33, 33, 33)
-                        .addComponent(fontBold)
-                        .addGap(12, 12, 12)
-                        .addComponent(fontItalic)
-                        .addGap(18, 18, 18)
-                        .addComponent(fontSizeLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
-                        .addComponent(textMultiplierLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(fontPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(182, 182, 182)
+                        .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
+                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addGap(182, 182, 182)
-                                .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addComponent(fontBold)
+                                .addGap(12, 12, 12)
+                                .addComponent(fontItalic)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(fontSizeLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(fontPanelLayout.createSequentialGroup()
                                 .addComponent(fontNameLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fontSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
                                 .addComponent(fontFormatLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(fontFormatSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
+                                .addComponent(textMultiplierLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
+                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(fontPanelLayout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fontTestTextField))
                             .addGroup(fontPanelLayout.createSequentialGroup()
                                 .addComponent(firstCharSemicolon)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lastCharSemicolon)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontTestTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
-                                .addGap(18, 18, 18)
-                                .addComponent(fontPreviewButton)))))
+                                .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(11, 11, 11)
+                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(fontPreviewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(udfc_suppd_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         fontPanelLayout.setVerticalGroup(
@@ -307,13 +316,13 @@ public class GUI extends javax.swing.JFrame {
                     .addComponent(textMultiplierLabel)
                     .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lastCharSemicolon)
-                        .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(firstCharSemicolon)
-                        .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lastCharSemicolon)
+                        .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(udfc_suppd_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -422,7 +431,7 @@ public class GUI extends javax.swing.JFrame {
                             .addComponent(outlineColorButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(fgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
                 .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -508,9 +517,12 @@ public class GUI extends javax.swing.JFrame {
                         .addComponent(jobSTOP, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jobGO, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 5, Short.MAX_VALUE)))
                 .addContainerGap())
         );
+
+        jobPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jobGO, jobOutDir, jobSTOP});
+
         jobPanelLayout.setVerticalGroup(
             jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jobPanelLayout.createSequentialGroup()
@@ -882,12 +894,16 @@ public class GUI extends javax.swing.JFrame {
         URL icon_url = getClass().getResource(RESOURCES_DIR + LICENSE_LOGO_FILE_NAME);
         if (icon_url != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append("<html><b>VERSION 1.0.0 - IKAROS (PUBLIC BUILD reviewed on 2019-09-06 at 20:30).</b></html>\n");
+            sb.append("<html><b>VERSION 1.0.1 - JAGUAR (PUBLIC BUILD reviewed on 2019-09-07 at 19:30).</b></html>\n");
             sb.append("<html><b>This software is free software, </b></html>\n");
             sb.append("<html><b>licensed under GNU General Public License (GPL).</b></html>\n");
             sb.append("\n");
             sb.append("Changelog:\n");
-            sb.append("\t- Welcome to initial release!\n");
+            sb.append("\t- Fixed displaying two messages, one after the other\n");
+            sb.append("\t  when job is terminated (stopped by the user).\n");
+            sb.append("\t- Disabling reset when job is under way.\n");
+            sb.append("\t- Label \"Font preview:\" when preview is clicked is deleted.\n");
+            sb.append("\t  Obscuring the preview.\n");
             sb.append("\n");
             sb.append("Objective:\n");
             sb.append("\tThe purpose of this program is creating Unicode Fonts for \n");
@@ -996,6 +1012,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JSpinner textMultiplier;
     private javax.swing.JLabel textMultiplierLabel;
     private javax.swing.JLabel tstLabel;
+    private javax.swing.JLabel udfc_suppd_label;
     private javax.swing.JCheckBox useAntialiasing;
     private javax.swing.JCheckBox useGradient;
     private javax.swing.JCheckBox useOutline;

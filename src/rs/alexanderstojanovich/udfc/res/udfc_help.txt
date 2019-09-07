@@ -15,7 +15,7 @@
     - Character cell size multiplier,
     - Colors,
     - Palette,
-    - Additional effects (gradient, outline and anti-aliasing),        
+    - Additional effects (gradient, outline and anti-aliasing).        
 
 <html><b>- FONT PREVIEW </b><html>
     At any time user can preview font which would 
@@ -25,7 +25,7 @@
     1. By clicking "Output Directory..." then "GO";
     2. By choosing "Export As..." in the file menu and then when file is chosen
        confirming it with output directory.
-    Way (1) and (2) are alternative and the outcome is the same 
+    Way (1) and (2) are alternative to each other and the outcome is the same 
     - one .pk3 file is generated.
 
     At any time user can stop the job by pressing "STOP" or in the file menu.

@@ -381,15 +381,17 @@ public class GUILogic {
                     "Job Result",
                     JOptionPane.ERROR_MESSAGE
             );
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Job finished successfuly!",
+                    "Job Result",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         }
         reqSTOP = false;
-        JOptionPane.showMessageDialog(null,
-                "Job finished successfuly!",
-                "Job Result",
-                JOptionPane.INFORMATION_MESSAGE
-        );
     }
 
+    // palette load wrapper
     public void loadPalette(String palette) {
         switch (palette) {
             case "Doom":
@@ -414,6 +416,7 @@ public class GUILogic {
         }
     }
 
+    // display palette in the effects area
     public void displayPalette() {
         if (Palette.isLoaded()) {
             for (int i = 0; i < Palette.getColors().length; i++) {
@@ -434,6 +437,7 @@ public class GUILogic {
         }
     }
 
+    // set enabled components all apart from "STOP"
     private void setEnabledComps() {
         for (JComponent comp : disCompList) {
             if (comp instanceof JButton) {
@@ -446,6 +450,7 @@ public class GUILogic {
         }
     }
 
+    // set disabled components all apart from "STOP"
     private void setDisabledComps() {
         for (JComponent comp : disCompList) {
             if (comp instanceof JButton) {
@@ -473,6 +478,9 @@ public class GUILogic {
         palette = "None";
         useGradient = false;
         useAntialias = false;
+
+        reqSTOP = false;
+
         Palette.reset();
     }
     //--------------------------------------------------------------------------

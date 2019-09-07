@@ -33,8 +33,9 @@ import javax.swing.JWindow;
  */
 public class GUIFontPreview extends JWindow {
 
-    private JLabel topLabel = new JLabel("Font preview:");
+    // label which contains the font preview image
     private JLabel imagePreviewLabel = new JLabel();
+    // button which closes the window
     private JButton closeButton = new JButton("Close");
 
     //--------------------------------------------------------------------------
@@ -53,7 +54,6 @@ public class GUIFontPreview extends JWindow {
     public void setUp() {
         this.setLayout(new BorderLayout());
         this.setUpPosition();
-        this.getContentPane().add(topLabel, BorderLayout.NORTH);
         this.getContentPane().add(imagePreviewLabel, BorderLayout.CENTER);
         this.getContentPane().add(closeButton, BorderLayout.SOUTH);
         this.setVisible(true);
