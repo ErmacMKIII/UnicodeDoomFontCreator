@@ -3,7 +3,7 @@
 
 1.0.1
 - Fixed displaying two messages, one after the other
-  when job is terminated (stopped by the user)
+  when job is terminated (stopped by the user).
   
 - Disabling reset when job is under way.
 

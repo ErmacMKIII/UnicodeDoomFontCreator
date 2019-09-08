@@ -112,7 +112,7 @@ public class GUILogic {
     private boolean reqSTOP = false;
 
     // way to test the font without making the pk3 file :)
-    private GUIFontPreview gfp = new GUIFontPreview();
+    private final GUIFontPreview gfp = new GUIFontPreview();
 
     //--------------------------------------------------------------------------
     // A - CONSTRUCTORS 
@@ -123,7 +123,7 @@ public class GUILogic {
         this.progressBar.setForeground(Color.WHITE);
         this.disCompList = disCompList;
         initColorVectors();
-
+        
         this.jobWorker = new Thread("Job Worker") {
             @Override
             public void run() {
@@ -138,6 +138,7 @@ public class GUILogic {
                     setDisabledComps();
                     go();
                     setEnabledComps();
+                    progressBar.setValue(0);
                 }
             }
         };
@@ -174,7 +175,7 @@ public class GUILogic {
         // calculating with and height and adding +1 to be correctly displayed
         int w = (int) Math.round(rect.getWidth()) + 1;
         int h = (int) Math.round(rect.getHeight()) + 1;
-
+        
         BufferedImage chImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         // create rendering char image graphics, where rendering take place
@@ -184,12 +185,12 @@ public class GUILogic {
 
         // don't forget to set font!
         chRender.setFont(myFont);
-
+        
         if (useAntialias) {
             chRender.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
+            
             chRender.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
@@ -197,12 +198,12 @@ public class GUILogic {
             chRender.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
-
+            
             chRender.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_DEFAULT);
         }
-
+        
         if (useGradient) {
             TextLayout chLayout = new TextLayout(String.valueOf(ch), myFont, frc);
             Rectangle2D gb = chLayout.getBounds();
@@ -259,31 +260,45 @@ public class GUILogic {
         return chImg;
     }
 
+    // way to preview the fonts (testing it) without actually making it (as a pk3)
     public void preview(String text) {
-        int totalwidth = 0;
-        int maxheight = 0;
-        int[] offset = new int[text.length()];
-        BufferedImage[] chImgs = new BufferedImage[text.length()];
-
-        for (int i = 0; i < text.length(); i++) {
-            char ch = text.charAt(i);
-            BufferedImage chImg = giveChImg(ch);
-            chImgs[i] = chImg;
-            offset[i] = totalwidth;
-            totalwidth += chImg.getWidth();
-            if (chImg.getHeight() > maxheight) {
-                maxheight = chImg.getHeight();
+        // 1. validating
+        if (text.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Nothing to preview!",
+                    "Font Preview",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        } else {
+            // 2. initializing
+            int totalwidth = 0;
+            int maxheight = 0;
+            int[] offset = new int[text.length()];
+            BufferedImage[] chImgs = new BufferedImage[text.length()];
+            // 3. calculating the parameters for the final (text) image
+            // also gathering char images into an array
+            for (int i = 0; i < text.length(); i++) {
+                char ch = text.charAt(i);
+                BufferedImage chImg = giveChImg(ch);
+                chImgs[i] = chImg;
+                offset[i] = totalwidth;
+                totalwidth += chImg.getWidth();
+                if (chImg.getHeight() > maxheight) {
+                    maxheight = chImg.getHeight();
+                }
             }
+            // 4. Composing final text image of several char images 
+            // each rendered on different offset
+            BufferedImage textImg = new BufferedImage(totalwidth, maxheight, BufferedImage.TYPE_INT_ARGB);
+            for (int j = 0; j < text.length(); j++) {
+                BufferedImage chImg = chImgs[j];
+                textImg.createGraphics().drawImage(chImg, offset[j], 0, null);
+            }
+            // 5. When final image i.e. textImg is ready -> preview it!
+            gfp.setUp();
+            gfp.preview(textImg);
         }
-
-        BufferedImage textImg = new BufferedImage(totalwidth, maxheight, BufferedImage.TYPE_INT_ARGB);
-        for (int j = 0; j < text.length(); j++) {
-            BufferedImage chImg = chImgs[j];
-            textImg.createGraphics().drawImage(chImg, offset[j], 0, null);
-        }
-
-        gfp.setUp();
-        gfp.preview(textImg);
     }
 
     // create the pk3 file, the main steel method; job worker uses it!
@@ -318,27 +333,27 @@ public class GUILogic {
         try {
             zos = new ZipOutputStream(new FileOutputStream(fontPK3));
             StringBuilder sb = new StringBuilder();
-
+            
             sb.append("filter/");
             ZipEntry firstDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(firstDirEntry);
             zos.closeEntry();
-
+            
             sb.append("doom.id/");
             ZipEntry secondDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(secondDirEntry);
             zos.closeEntry();
-
+            
             sb.append("fonts/");
             ZipEntry thirdDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(thirdDirEntry);
             zos.closeEntry();
-
+            
             sb.append(fontDirName).append("/");
             ZipEntry fourthDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(fourthDirEntry);
             zos.closeEntry();
-
+            
             for (int i = beginChar; i <= endChar && !reqSTOP; i++) {
                 BufferedImage chImg = giveChImg((char) i);
 
@@ -376,13 +391,15 @@ public class GUILogic {
         }
         // if user demanded stop with stop signal (by pressing the button or via menu)!
         if (reqSTOP) {
-            JOptionPane.showMessageDialog(null,
+            JOptionPane.showMessageDialog(
+                    null,
                     "Job terminated!",
                     "Job Result",
                     JOptionPane.ERROR_MESSAGE
             );
         } else {
-            JOptionPane.showMessageDialog(null,
+            JOptionPane.showMessageDialog(
+                    null,
                     "Job finished successfuly!",
                     "Job Result",
                     JOptionPane.INFORMATION_MESSAGE
@@ -466,21 +483,21 @@ public class GUILogic {
     // Asynchronous reset  - returns the logic into initial state
     public void reset() {
         myFont = new Font("Courier New", Font.PLAIN, 12);
-
+        
         beginChar = 32;
         endChar = 127;
-
+        
         fgColor = Color.YELLOW;
         bgColor = Color.CYAN;
         outlineColor = Color.BLUE;
         outlineWidth = 0;
-
+        
         palette = "None";
         useGradient = false;
         useAntialias = false;
-
+        
         reqSTOP = false;
-
+        
         Palette.reset();
     }
     //--------------------------------------------------------------------------
@@ -490,165 +507,169 @@ public class GUILogic {
     public boolean isInitialized() {
         return initialized;
     }
-
+    
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
     }
-
+    
     public File getFontPK3() {
         return fontPK3;
     }
-
+    
     public void setFontPK3(File fontPK3) {
         this.fontPK3 = fontPK3;
     }
-
+    
     public Font getMyFont() {
         return myFont;
     }
-
+    
     public void setMyFont(Font myFont) {
         this.myFont = myFont;
     }
-
+    
     public String getFontFormat() {
         return fontFormat;
     }
-
+    
     public void setFontFormat(String fontFormat) {
         this.fontFormat = fontFormat;
     }
-
+    
     public int getBeginChar() {
         return beginChar;
     }
-
+    
     public void setBeginChar(int beginChar) {
         this.beginChar = beginChar;
     }
-
+    
     public int getEndChar() {
         return endChar;
     }
-
+    
     public void setEndChar(int endChar) {
         this.endChar = endChar;
     }
-
+    
     public float getMultiplier() {
         return multiplier;
     }
-
+    
     public void setMultiplier(float multiplier) {
         this.multiplier = multiplier;
     }
-
+    
     public Color getFgColor() {
         return fgColor;
     }
-
+    
     public void setFgColor(Color fgColor) {
         this.fgColor = fgColor;
     }
-
+    
     public Color getBgColor() {
         return bgColor;
     }
-
+    
     public void setBgColor(Color bgColor) {
         this.bgColor = bgColor;
     }
-
+    
     public Color getOutlineColor() {
         return outlineColor;
     }
-
+    
     public void setOutlineColor(Color outlineColor) {
         this.outlineColor = outlineColor;
     }
-
+    
     public int getOutlineWidth() {
         return outlineWidth;
     }
-
+    
     public void setOutlineWidth(int outlineWidth) {
         this.outlineWidth = outlineWidth;
     }
-
+    
     public String getPalette() {
         return palette;
     }
-
+    
     public void setPalette(String palette) {
         this.palette = palette;
     }
-
+    
     public JLabel[] getColorVector() {
         return colorVector;
     }
-
+    
     public void setColorVector(JLabel[] colorVector) {
         this.colorVector = colorVector;
     }
-
+    
     public JPanel getColorPanel() {
         return colorPanel;
     }
-
+    
     public void setColorPanel(JPanel colorPanel) {
         this.colorPanel = colorPanel;
     }
-
+    
     public JProgressBar getProgressBar() {
         return progressBar;
     }
-
+    
     public void setProgressBar(JProgressBar progressBar) {
         this.progressBar = progressBar;
     }
-
+    
     public List<JComponent> getDisCompList() {
         return disCompList;
     }
-
+    
     public void setDisCompList(List<JComponent> disCompList) {
         this.disCompList = disCompList;
     }
-
+    
     public boolean isUseGradient() {
         return useGradient;
     }
-
+    
     public void setUseGradient(boolean useGradient) {
         this.useGradient = useGradient;
     }
-
+    
     public boolean isUseAntialias() {
         return useAntialias;
     }
-
+    
     public void setUseAntialias(boolean useAntialias) {
         this.useAntialias = useAntialias;
     }
-
+    
     public Thread getJobWorker() {
         return jobWorker;
     }
-
+    
     public void setJobWorker(Thread jobWorker) {
         this.jobWorker = jobWorker;
     }
-
+    
     public boolean isReqSTOP() {
         return reqSTOP;
     }
-
+    
     public void setReqSTOP(boolean reqSTOP) {
         this.reqSTOP = reqSTOP;
     }
-
+    
+    public GUIFontPreview getGfp() {
+        return gfp;
+    }
+    
     public Object getSyncObj() {
         return syncObj;
     }
-
+    
 }

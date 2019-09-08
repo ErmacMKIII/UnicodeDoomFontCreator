@@ -273,7 +273,7 @@
         <Component class="javax.swing.JSpinner" name="fontSize">
           <Properties>
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-              <SpinnerModel initial="12" maximum="40" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+              <SpinnerModel initial="12" maximum="120" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
             </Property>
           </Properties>
           <Events>
