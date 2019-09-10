@@ -33,11 +33,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javafx.util.Pair;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -56,6 +59,14 @@ import rs.alexanderstojanovich.udfc.util.Palette;
  */
 public class GUILogic {
 
+    // creation mode chosen on the GUI with it's two modes
+    public enum CreationMode {
+        CHAR_COVERAGE, CHAR_RANGE
+    }
+
+    // creation mode of the GUI
+    private CreationMode creationMode = CreationMode.CHAR_COVERAGE;
+
     // tells us did we initialize the GUI_Logic
     private boolean initialized = false;
 
@@ -64,9 +75,30 @@ public class GUILogic {
 
     // font from the OS from which we derive the GZDoom font
     private Font myFont = new Font("Courier New", Font.PLAIN, 12);
+    // GZDoom font format
     private String fontFormat = "Console Font";
 
-    // begin char of character range
+    // inventing comparator for proper range sort (and yea image sort)
+    Comparator<Pair<Integer, Integer>> jobTaskComp = new Comparator<Pair<Integer, Integer>>() {
+        @Override
+        public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
+            return (o1.getKey() - o2.getKey());
+        }
+    };
+
+    // char range of latin script
+    public static final Pair<Integer, Integer> LATIN = new Pair<Integer, Integer>(0x0000, 0x00FF);
+    // yea but extented
+    public static final Pair<Integer, Integer> LATIN_EXT = new Pair<Integer, Integer>(0x0100, 0x024F);
+    // cyrillic
+    public static final Pair<Integer, Integer> CYRILLIC = new Pair<Integer, Integer>(0x0400, 0x04FF);
+    // and greek
+    public static final Pair<Integer, Integer> GREEK = new Pair<Integer, Integer>(0x0370, 0x03FF);
+
+    // pair of character ranges used for coverage
+    private List<Pair<Integer, Integer>> jobTaskList = new LinkedList<Pair<Integer, Integer>>();
+
+    // begin char of character range when
     private int beginChar = 32;
     // end char of the character range
     private int endChar = 127;
@@ -123,7 +155,7 @@ public class GUILogic {
         this.progressBar.setForeground(Color.WHITE);
         this.disCompList = disCompList;
         initColorVectors();
-        
+
         this.jobWorker = new Thread("Job Worker") {
             @Override
             public void run() {
@@ -175,7 +207,7 @@ public class GUILogic {
         // calculating with and height and adding +1 to be correctly displayed
         int w = (int) Math.round(rect.getWidth()) + 1;
         int h = (int) Math.round(rect.getHeight()) + 1;
-        
+
         BufferedImage chImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         // create rendering char image graphics, where rendering take place
@@ -185,12 +217,12 @@ public class GUILogic {
 
         // don't forget to set font!
         chRender.setFont(myFont);
-        
+
         if (useAntialias) {
             chRender.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            
+
             chRender.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
@@ -198,12 +230,12 @@ public class GUILogic {
             chRender.setRenderingHint(
                     RenderingHints.KEY_TEXT_ANTIALIASING,
                     RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT);
-            
+
             chRender.setRenderingHint(
                     RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_DEFAULT);
         }
-        
+
         if (useGradient) {
             TextLayout chLayout = new TextLayout(String.valueOf(ch), myFont, frc);
             Rectangle2D gb = chLayout.getBounds();
@@ -333,48 +365,87 @@ public class GUILogic {
         try {
             zos = new ZipOutputStream(new FileOutputStream(fontPK3));
             StringBuilder sb = new StringBuilder();
-            
+
             sb.append("filter/");
             ZipEntry firstDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(firstDirEntry);
             zos.closeEntry();
-            
+
             sb.append("doom.id/");
             ZipEntry secondDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(secondDirEntry);
             zos.closeEntry();
-            
+
             sb.append("fonts/");
             ZipEntry thirdDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(thirdDirEntry);
             zos.closeEntry();
-            
+
             sb.append(fontDirName).append("/");
             ZipEntry fourthDirEntry = new ZipEntry(sb.toString());
             zos.putNextEntry(fourthDirEntry);
             zos.closeEntry();
-            
-            for (int i = beginChar; i <= endChar && !reqSTOP; i++) {
-                BufferedImage chImg = giveChImg((char) i);
 
-                // determine the image name
-                String imgFileName = String.format("%04X", i) + ".png";
-                // making entry with the image name which is inside main dir entry
-                ZipEntry entry = new ZipEntry(sb.toString() + imgFileName);
-                // putting the entry..
-                zos.putNextEntry(entry);
+            float progress = 0.0f;
 
-                // which contains the image.. yes!
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(chImg, "png", baos);
-                byte[] data = baos.toByteArray();
-                zos.write(data);
-                zos.closeEntry();
-                // closing the entry!
+            switch (creationMode) {
+                // user chosen coverage (Latin, Latin Extented, Cyrillic and Greek)
+                case CHAR_COVERAGE:
+                    jobTaskList.sort(jobTaskComp);
+                    upper:
+                    for (Pair<Integer, Integer> pair : jobTaskList) {
+                        for (int i = pair.getKey(); i <= pair.getValue(); i++) {
+                            if (reqSTOP) {
+                                break upper;
+                            }
+                            BufferedImage chImg = giveChImg((char) i);
 
-                float progress = (i + 1) / (float) (endChar - beginChar + 1);
-                progressBar.setValue(Math.round(100 * progress));
-                progressBar.validate();
+                            // determine the image name
+                            String imgFileName = String.format("%04X", i) + ".png";
+                            // making entry with the image name which is inside main dir entry
+                            ZipEntry entry = new ZipEntry(sb.toString() + imgFileName);
+                            // putting the entry..
+                            zos.putNextEntry(entry);
+
+                            // which contains the image.. yes!
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            ImageIO.write(chImg, "png", baos);
+                            byte[] data = baos.toByteArray();
+                            zos.write(data);
+                            zos.closeEntry();
+                            // closing the entry!
+
+                            progress += 1.0f / (float) ((pair.getValue() - pair.getKey() + 1) * jobTaskList.size());
+                            progressBar.setValue(Math.round(100 * progress));
+                            progressBar.validate();
+                        }
+                    }
+                    break;
+                // user chosen specific range
+                case CHAR_RANGE:
+                    for (int i = beginChar; i <= endChar && !reqSTOP; i++) {
+                        BufferedImage chImg = giveChImg((char) i);
+
+                        // determine the image name
+                        String imgFileName = String.format("%04X", i) + ".png";
+                        // making entry with the image name which is inside main dir entry
+                        ZipEntry entry = new ZipEntry(sb.toString() + imgFileName);
+                        // putting the entry..
+                        zos.putNextEntry(entry);
+
+                        // which contains the image.. yes!
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ImageIO.write(chImg, "png", baos);
+                        byte[] data = baos.toByteArray();
+                        zos.write(data);
+                        zos.closeEntry();
+                        // closing the entry!
+
+                        progress += 1.0f / (float) (endChar - beginChar + 1);
+                        progressBar.setValue(Math.round(100 * progress));
+                        progressBar.validate();
+                    }
+                    break;
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(GUILogic.class.getName()).log(Level.SEVERE, null, ex);
@@ -425,7 +496,6 @@ public class GUILogic {
                 break;
             case "8-bit RGB":
                 Palette.load8bitRGB();
-                ;
                 break;
             default:
                 Palette.reset();
@@ -482,194 +552,214 @@ public class GUILogic {
 
     // Asynchronous reset  - returns the logic into initial state
     public void reset() {
+
+        creationMode = CreationMode.CHAR_COVERAGE;
+        jobTaskList.clear();
+
         myFont = new Font("Courier New", Font.PLAIN, 12);
-        
+
         beginChar = 32;
         endChar = 127;
-        
+
         fgColor = Color.YELLOW;
         bgColor = Color.CYAN;
         outlineColor = Color.BLUE;
         outlineWidth = 0;
-        
+
         palette = "None";
         useGradient = false;
         useAntialias = false;
-        
+
         reqSTOP = false;
-        
+
         Palette.reset();
     }
     //--------------------------------------------------------------------------
     // C - GETTERS AND SETTERS
     //--------------------------------------------------------------------------
 
+    public CreationMode getCreationMode() {
+        return creationMode;
+    }
+
+    public void setCreationMode(CreationMode creationMode) {
+        this.creationMode = creationMode;
+    }
+
     public boolean isInitialized() {
         return initialized;
     }
-    
+
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
     }
-    
+
     public File getFontPK3() {
         return fontPK3;
     }
-    
+
     public void setFontPK3(File fontPK3) {
         this.fontPK3 = fontPK3;
     }
-    
+
     public Font getMyFont() {
         return myFont;
     }
-    
+
     public void setMyFont(Font myFont) {
         this.myFont = myFont;
     }
-    
+
     public String getFontFormat() {
         return fontFormat;
     }
-    
+
     public void setFontFormat(String fontFormat) {
         this.fontFormat = fontFormat;
     }
-    
+
+    public List<Pair<Integer, Integer>> getJobTaskList() {
+        return jobTaskList;
+    }
+
+    public void setJobTaskList(List<Pair<Integer, Integer>> jobTaskList) {
+        this.jobTaskList = jobTaskList;
+    }
+
     public int getBeginChar() {
         return beginChar;
     }
-    
+
     public void setBeginChar(int beginChar) {
         this.beginChar = beginChar;
     }
-    
+
     public int getEndChar() {
         return endChar;
     }
-    
+
     public void setEndChar(int endChar) {
         this.endChar = endChar;
     }
-    
+
     public float getMultiplier() {
         return multiplier;
     }
-    
+
     public void setMultiplier(float multiplier) {
         this.multiplier = multiplier;
     }
-    
+
     public Color getFgColor() {
         return fgColor;
     }
-    
+
     public void setFgColor(Color fgColor) {
         this.fgColor = fgColor;
     }
-    
+
     public Color getBgColor() {
         return bgColor;
     }
-    
+
     public void setBgColor(Color bgColor) {
         this.bgColor = bgColor;
     }
-    
+
     public Color getOutlineColor() {
         return outlineColor;
     }
-    
+
     public void setOutlineColor(Color outlineColor) {
         this.outlineColor = outlineColor;
     }
-    
+
     public int getOutlineWidth() {
         return outlineWidth;
     }
-    
+
     public void setOutlineWidth(int outlineWidth) {
         this.outlineWidth = outlineWidth;
     }
-    
+
     public String getPalette() {
         return palette;
     }
-    
+
     public void setPalette(String palette) {
         this.palette = palette;
     }
-    
+
     public JLabel[] getColorVector() {
         return colorVector;
     }
-    
+
     public void setColorVector(JLabel[] colorVector) {
         this.colorVector = colorVector;
     }
-    
+
     public JPanel getColorPanel() {
         return colorPanel;
     }
-    
+
     public void setColorPanel(JPanel colorPanel) {
         this.colorPanel = colorPanel;
     }
-    
+
     public JProgressBar getProgressBar() {
         return progressBar;
     }
-    
+
     public void setProgressBar(JProgressBar progressBar) {
         this.progressBar = progressBar;
     }
-    
+
     public List<JComponent> getDisCompList() {
         return disCompList;
     }
-    
+
     public void setDisCompList(List<JComponent> disCompList) {
         this.disCompList = disCompList;
     }
-    
+
     public boolean isUseGradient() {
         return useGradient;
     }
-    
+
     public void setUseGradient(boolean useGradient) {
         this.useGradient = useGradient;
     }
-    
+
     public boolean isUseAntialias() {
         return useAntialias;
     }
-    
+
     public void setUseAntialias(boolean useAntialias) {
         this.useAntialias = useAntialias;
     }
-    
+
     public Thread getJobWorker() {
         return jobWorker;
     }
-    
+
     public void setJobWorker(Thread jobWorker) {
         this.jobWorker = jobWorker;
     }
-    
+
     public boolean isReqSTOP() {
         return reqSTOP;
     }
-    
+
     public void setReqSTOP(boolean reqSTOP) {
         this.reqSTOP = reqSTOP;
     }
-    
-    public GUIFontPreview getGfp() {
-        return gfp;
-    }
-    
+
     public Object getSyncObj() {
         return syncObj;
     }
-    
+
+    public GUIFontPreview getGfp() {
+        return gfp;
+    }
+
 }

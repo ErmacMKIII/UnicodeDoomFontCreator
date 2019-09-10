@@ -11,7 +11,7 @@
     Each character in the archive is one PNG file with features user chosen to be.
     Many features are available to the user, including:
     - Installed Font as a base,
-    - Character range,
+    - Character coverage (which scripts in particular) or custom character range,
     - Character cell size multiplier,
     - Colors,
     - Palette,
@@ -20,6 +20,8 @@
 <html><b>- FONT PREVIEW </b><html>
     At any time user can preview font which would 
     generate anyways by pressing Preview 
+    User is encouraged to test the font 
+    in the desired script before generating it.
 
 <html><b>- FONT GENERATION AKA JOB </b><html>
     1. By clicking "Output Directory..." then "GO";

@@ -9,5 +9,10 @@
 
 - Label "Font preview:" when preview is clicked is deleted.
   Obscuring the preview.
-  
+
+1.0.2
+ - Creation split into two modes: "Char Coverage" and "Char Range".
+
+ - Coverage supports four scripts: Latin, Latin Extented, Cyrillic and Greek.   
+ 
 Enjoy using this program! - Ermac

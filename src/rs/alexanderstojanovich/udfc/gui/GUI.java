@@ -17,6 +17,7 @@
 package rs.alexanderstojanovich.udfc.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.util.Pair;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -68,28 +70,35 @@ public class GUI extends javax.swing.JFrame {
     // choosen file as destination for export
     private File dstFile;
 
+    // there is one GUI and this is it's progress..
+    private static int progress = 0;
+
     /**
      * Creates new form GUI
      */
     public GUI() {
         initComponents();
+        GUI.progress += 25;
         initPosition();
         initFontSelector();
         initColorButtons();
         initUDFCLogos();
         initDialog();
+        initRadioGroup();
+        GUI.progress += 8;
         List<JComponent> compList = new ArrayList<JComponent>();
-        
+
         compList.add(jobOutDir);
         compList.add(jobGO);
         compList.add(jobSTOP);
-        
+
         compList.add(fileExport);
         compList.add(fileExportAs);
         compList.add(fileSTOP);
         compList.add(fileReset);
-        
+        GUI.progress += 12;
         this.guiLogic = new GUILogic(this.palettePreview, this.jobProgress, compList);
+        GUI.progress += 55;
     }
 
     /**
@@ -102,25 +111,35 @@ public class GUI extends javax.swing.JFrame {
     private void initComponents() {
 
         fileExporter = new javax.swing.JFileChooser();
+        radioButtonGroup = new javax.swing.ButtonGroup();
         fontPanel = new javax.swing.JPanel();
         fontNameLabel = new javax.swing.JLabel();
         fontSelector = new javax.swing.JComboBox<>();
+        fontFormatLabel = new javax.swing.JLabel();
+        fontFormatSelector = new javax.swing.JComboBox<>();
         fontBold = new javax.swing.JCheckBox();
         fontItalic = new javax.swing.JCheckBox();
         fontSizeLabel = new javax.swing.JLabel();
         fontSize = new javax.swing.JSpinner();
-        firstCharSemicolon = new javax.swing.JLabel();
-        textFirstChar = new javax.swing.JSpinner();
-        lastCharSemicolon = new javax.swing.JLabel();
-        textLastChar = new javax.swing.JSpinner();
         textMultiplierLabel = new javax.swing.JLabel();
         textMultiplier = new javax.swing.JSpinner();
         tstLabel = new javax.swing.JLabel();
-        fontFormatSelector = new javax.swing.JComboBox<>();
-        fontFormatLabel = new javax.swing.JLabel();
-        fontPreviewButton = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        charRangePanel = new javax.swing.JPanel();
+        lastCharSemicolon = new javax.swing.JLabel();
+        firstCharSemicolon = new javax.swing.JLabel();
+        textFirstChar = new javax.swing.JSpinner();
+        textLastChar = new javax.swing.JSpinner();
+        radioPanel = new javax.swing.JPanel();
+        radioCharCoverage = new javax.swing.JRadioButton();
+        radioCharRange = new javax.swing.JRadioButton();
+        charCoveragePanel = new javax.swing.JPanel();
+        chCoverLatin = new javax.swing.JCheckBox();
+        chCoverLatinExt = new javax.swing.JCheckBox();
+        chCoverCyrillic = new javax.swing.JCheckBox();
+        chCoverGreek = new javax.swing.JCheckBox();
+        fontTestLabel = new javax.swing.JLabel();
         fontTestTextField = new javax.swing.JTextField();
+        fontPreviewButton = new javax.swing.JButton();
         udfc_suppd_label = new javax.swing.JLabel();
         effectsPanel = new javax.swing.JPanel();
         fgLabel = new javax.swing.JLabel();
@@ -158,7 +177,7 @@ public class GUI extends javax.swing.JFrame {
         fileExporter.setDialogType(javax.swing.JFileChooser.CUSTOM_DIALOG);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Unicode Doom Font Creator - JAGUAR");
+        setTitle("Unicode Doom Font Creator - KOREANS");
         setResizable(false);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.Y_AXIS));
 
@@ -169,6 +188,15 @@ public class GUI extends javax.swing.JFrame {
         fontSelector.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fontSelectorActionPerformed(evt);
+            }
+        });
+
+        fontFormatLabel.setText("Format:");
+
+        fontFormatSelector.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Console Font", "Small Font", "Big Font", "Big Upper" }));
+        fontFormatSelector.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontFormatSelectorActionPerformed(evt);
             }
         });
 
@@ -195,24 +223,6 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        firstCharSemicolon.setText("First Char (ASCII):");
-
-        textFirstChar.setModel(new javax.swing.SpinnerNumberModel(32, 0, 65535, 1));
-        textFirstChar.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                textFirstCharStateChanged(evt);
-            }
-        });
-
-        lastCharSemicolon.setText("Last Char (ASCII):");
-
-        textLastChar.setModel(new javax.swing.SpinnerNumberModel(127, 0, 65535, 1));
-        textLastChar.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                textLastCharStateChanged(evt);
-            }
-        });
-
         textMultiplierLabel.setText("Multiplier:");
 
         textMultiplier.setModel(new javax.swing.SpinnerNumberModel(1.0d, 1.0d, 10.0d, 0.1d));
@@ -222,14 +232,160 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        fontFormatSelector.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Console Font", "Small Font", "Big Font", "Big Upper" }));
-        fontFormatSelector.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                fontFormatSelectorActionPerformed(evt);
+        charRangePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Char Range (ASCII)", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+
+        lastCharSemicolon.setText("Last Char:");
+        lastCharSemicolon.setEnabled(false);
+
+        firstCharSemicolon.setText("First Char:");
+        firstCharSemicolon.setEnabled(false);
+
+        textFirstChar.setModel(new javax.swing.SpinnerNumberModel(32, 0, 65535, 1));
+        textFirstChar.setEnabled(false);
+        textFirstChar.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                textFirstCharStateChanged(evt);
             }
         });
 
-        fontFormatLabel.setText("Format:");
+        textLastChar.setModel(new javax.swing.SpinnerNumberModel(127, 0, 65535, 1));
+        textLastChar.setEnabled(false);
+        textLastChar.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                textLastCharStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout charRangePanelLayout = new javax.swing.GroupLayout(charRangePanel);
+        charRangePanel.setLayout(charRangePanelLayout);
+        charRangePanelLayout.setHorizontalGroup(
+            charRangePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(charRangePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(charRangePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, charRangePanelLayout.createSequentialGroup()
+                        .addComponent(firstCharSemicolon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(charRangePanelLayout.createSequentialGroup()
+                        .addComponent(lastCharSemicolon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        charRangePanelLayout.setVerticalGroup(
+            charRangePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(charRangePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(charRangePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(firstCharSemicolon)
+                    .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(charRangePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lastCharSemicolon)
+                    .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        radioPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Creation Mode", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+
+        radioCharCoverage.setSelected(true);
+        radioCharCoverage.setText("Char Coverage");
+        radioCharCoverage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioCharCoverageActionPerformed(evt);
+            }
+        });
+
+        radioCharRange.setText("Char Range");
+        radioCharRange.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioCharRangeActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout radioPanelLayout = new javax.swing.GroupLayout(radioPanel);
+        radioPanel.setLayout(radioPanelLayout);
+        radioPanelLayout.setHorizontalGroup(
+            radioPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(radioPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(radioPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(radioCharCoverage)
+                    .addComponent(radioCharRange))
+                .addContainerGap())
+        );
+        radioPanelLayout.setVerticalGroup(
+            radioPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(radioPanelLayout.createSequentialGroup()
+                .addComponent(radioCharCoverage)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(radioCharRange, javax.swing.GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
+        );
+
+        charCoveragePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Char Coverage", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+
+        chCoverLatin.setText("Latin");
+        chCoverLatin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chCoverLatinActionPerformed(evt);
+            }
+        });
+
+        chCoverLatinExt.setText("Latin Extented");
+        chCoverLatinExt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chCoverLatinExtActionPerformed(evt);
+            }
+        });
+
+        chCoverCyrillic.setText("Cyrillic");
+        chCoverCyrillic.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chCoverCyrillicActionPerformed(evt);
+            }
+        });
+
+        chCoverGreek.setText("Greek");
+        chCoverGreek.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chCoverGreekActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout charCoveragePanelLayout = new javax.swing.GroupLayout(charCoveragePanel);
+        charCoveragePanel.setLayout(charCoveragePanelLayout);
+        charCoveragePanelLayout.setHorizontalGroup(
+            charCoveragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(charCoveragePanelLayout.createSequentialGroup()
+                .addComponent(chCoverLatin)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(charCoveragePanelLayout.createSequentialGroup()
+                .addGroup(charCoveragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chCoverLatinExt)
+                    .addComponent(chCoverCyrillic)
+                    .addComponent(chCoverGreek))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        charCoveragePanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {chCoverCyrillic, chCoverGreek, chCoverLatin, chCoverLatinExt});
+
+        charCoveragePanelLayout.setVerticalGroup(
+            charCoveragePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(charCoveragePanelLayout.createSequentialGroup()
+                .addComponent(chCoverLatin)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(chCoverLatinExt)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chCoverCyrillic)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chCoverGreek)
+                .addContainerGap())
+        );
+
+        fontTestLabel.setText("Test:");
+
+        fontTestTextField.setText("Quick Brown Fox Jumps Over The Lazy Dog");
 
         fontPreviewButton.setText("Preview...");
         fontPreviewButton.addActionListener(new java.awt.event.ActionListener() {
@@ -238,10 +394,6 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setText("Test:");
-
-        fontTestTextField.setText("Quick Brown Fox Jumps Over The Lazy Dog");
-
         udfc_suppd_label.setIcon(new javax.swing.ImageIcon(getClass().getResource("/rs/alexanderstojanovich/udfc/res/udfc_suppd.png"))); // NOI18N
 
         javax.swing.GroupLayout fontPanelLayout = new javax.swing.GroupLayout(fontPanel);
@@ -249,54 +401,54 @@ public class GUI extends javax.swing.JFrame {
         fontPanelLayout.setHorizontalGroup(
             fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(fontPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(fontPanelLayout.createSequentialGroup()
-                        .addGap(182, 182, 182)
-                        .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addGap(27, 27, 27)
-                                .addComponent(fontBold)
-                                .addGap(12, 12, 12)
-                                .addComponent(fontItalic)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(fontSizeLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addComponent(fontNameLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addContainerGap()
                         .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                                .addComponent(fontFormatLabel)
+                                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, fontPanelLayout.createSequentialGroup()
+                                        .addGap(27, 27, 27)
+                                        .addComponent(fontBold)
+                                        .addGap(12, 12, 12)
+                                        .addComponent(fontItalic)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(fontSizeLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, fontPanelLayout.createSequentialGroup()
+                                        .addComponent(fontNameLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fontSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontFormatSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
+                                        .addComponent(fontFormatLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fontFormatSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(fontPanelLayout.createSequentialGroup()
+                                        .addComponent(textMultiplierLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(9, 9, 9))
+                            .addGroup(fontPanelLayout.createSequentialGroup()
+                                .addComponent(udfc_suppd_label)
+                                .addGap(0, 0, 0)
+                                .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                                .addComponent(textMultiplierLabel)
+                                .addComponent(fontTestLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontTestTextField))
-                            .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addComponent(firstCharSemicolon)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lastCharSemicolon)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(11, 11, 11)
-                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(fontPreviewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(udfc_suppd_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(fontPreviewButton)
+                                .addGap(10, 10, 10))))
+                    .addGroup(fontPanelLayout.createSequentialGroup()
+                        .addComponent(radioPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(charCoveragePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(charRangePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         fontPanelLayout.setVerticalGroup(
@@ -315,23 +467,25 @@ public class GUI extends javax.swing.JFrame {
                     .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(textMultiplierLabel)
                     .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(firstCharSemicolon)
-                        .addComponent(textFirstChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lastCharSemicolon)
-                        .addComponent(textLastChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(udfc_suppd_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(radioPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charCoveragePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(fontPanelLayout.createSequentialGroup()
+                        .addComponent(charRangePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(udfc_suppd_label, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                    .addComponent(fontTestLabel)
                     .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fontPreviewButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(tstLabel)
-                .addContainerGap())
+                .addGap(0, 0, 0))
         );
+
+        fontPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {charRangePanel, radioPanel});
 
         getContentPane().add(fontPanel);
 
@@ -408,17 +562,7 @@ public class GUI extends javax.swing.JFrame {
         effectsPanelLayout.setHorizontalGroup(
             effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(effectsPanelLayout.createSequentialGroup()
-                .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(useGradient)
-                        .addGroup(effectsPanelLayout.createSequentialGroup()
-                            .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(useAntialiasing)
-                                .addComponent(useOutline))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(widthLabel)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(effectsPanelLayout.createSequentialGroup()
                         .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(fgLabel)
@@ -430,19 +574,26 @@ public class GUI extends javax.swing.JFrame {
                             .addComponent(paletteSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(outlineColorButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(bgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                            .addComponent(fgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(effectsPanelLayout.createSequentialGroup()
+                        .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(useGradient)
+                            .addGroup(effectsPanelLayout.createSequentialGroup()
+                                .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(useAntialiasing)
+                                    .addComponent(useOutline))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(widthLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         effectsPanelLayout.setVerticalGroup(
             effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(effectsPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(effectsPanelLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(effectsPanelLayout.createSequentialGroup()
                         .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(fgLabel)
@@ -467,9 +618,9 @@ public class GUI extends javax.swing.JFrame {
                             .addComponent(widthLabel)
                             .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(useAntialiasing)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addComponent(useAntialiasing))
+                    .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         effectsPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {bgButton, fgButton, outlineColorButton});
@@ -512,12 +663,11 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jobProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jobPanelLayout.createSequentialGroup()
-                        .addComponent(jobOutDir, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jobSTOP, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jobGO, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 5, Short.MAX_VALUE)))
+                        .addComponent(jobOutDir)
+                        .addGap(18, 18, 18)
+                        .addComponent(jobSTOP, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                        .addComponent(jobGO, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -525,8 +675,7 @@ public class GUI extends javax.swing.JFrame {
 
         jobPanelLayout.setVerticalGroup(
             jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jobPanelLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jobPanelLayout.createSequentialGroup()
                 .addGroup(jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jobOutDir)
                     .addComponent(jobGO)
@@ -607,23 +756,17 @@ public class GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.chooseDstDir();
     }//GEN-LAST:event_jobOutDirActionPerformed
-    
+
     private void fileQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileQuitActionPerformed
         // TODO add your handling code here:
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }//GEN-LAST:event_fileQuitActionPerformed
-    
+
     private void fileResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileResetActionPerformed
         // TODO add your handling code here:
         this.reset();
     }//GEN-LAST:event_fileResetActionPerformed
-    
-    private void paletteSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paletteSelectorActionPerformed
-        // TODO add your handling code here:
-        this.guiLogic.loadPalette((String) paletteSelector.getSelectedItem());
-        this.guiLogic.displayPalette();
-    }//GEN-LAST:event_paletteSelectorActionPerformed
-    
+
     private void fontSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSelectorActionPerformed
         // TODO add your handling code here:
         Font font;
@@ -640,7 +783,7 @@ public class GUI extends javax.swing.JFrame {
             this.guiLogic.setMyFont(font);
         }
     }//GEN-LAST:event_fontSelectorActionPerformed
-    
+
     private void fileExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExportActionPerformed
         // TODO add your handling code here:
         if (dstFile == null) {
@@ -650,7 +793,7 @@ public class GUI extends javax.swing.JFrame {
             this.guiLogic.getSyncObj().notify();
         }
     }//GEN-LAST:event_fileExportActionPerformed
-    
+
     private void fileExportAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExportAsActionPerformed
         // TODO add your handling code here:
         chooseDstDir();
@@ -658,17 +801,89 @@ public class GUI extends javax.swing.JFrame {
             this.guiLogic.getSyncObj().notify();
         }
     }//GEN-LAST:event_fileExportAsActionPerformed
-    
+
     private void fontSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fontSizeStateChanged
         // TODO add your handling code here:
         updateFont();
     }//GEN-LAST:event_fontSizeStateChanged
-    
+
     private void textMultiplierStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textMultiplierStateChanged
         // TODO add your handling code here:
         guiLogic.setMultiplier((float) this.textMultiplier.getValue());
     }//GEN-LAST:event_textMultiplierStateChanged
-    
+
+    private void jobGOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobGOActionPerformed
+        // TODO add your handling code here
+        synchronized (this.guiLogic.getSyncObj()) {
+            this.guiLogic.getSyncObj().notify();
+        }
+    }//GEN-LAST:event_jobGOActionPerformed
+
+    private void fontBoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontBoldActionPerformed
+        // TODO add your handling code here:
+        updateFont();
+    }//GEN-LAST:event_fontBoldActionPerformed
+
+    private void fontItalicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItalicActionPerformed
+        // TODO add your handling code here:
+        updateFont();
+    }//GEN-LAST:event_fontItalicActionPerformed
+
+    private void jobSTOPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobSTOPActionPerformed
+        // TODO add your handling code here:
+        guiLogic.setReqSTOP(true);
+    }//GEN-LAST:event_jobSTOPActionPerformed
+
+    private void fontFormatSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontFormatSelectorActionPerformed
+        // TODO add your handling code here:
+        guiLogic.setFontFormat((String) fontFormatSelector.getSelectedItem());
+    }//GEN-LAST:event_fontFormatSelectorActionPerformed
+
+    private void fontPreviewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontPreviewButtonActionPerformed
+        // TODO add your handling code here:
+        guiLogic.preview(this.fontTestTextField.getText());
+    }//GEN-LAST:event_fontPreviewButtonActionPerformed
+
+    private void infoAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoAboutActionPerformed
+        // TODO add your handling code here:
+        infoAbout();
+    }//GEN-LAST:event_infoAboutActionPerformed
+
+    private void infoHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoHelpActionPerformed
+        // TODO add your handling code here:
+        infoHelp();
+    }//GEN-LAST:event_infoHelpActionPerformed
+
+    private void textLastCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textLastCharStateChanged
+        // TODO add your handling code here:
+        guiLogic.setEndChar((int) textLastChar.getValue());
+    }//GEN-LAST:event_textLastCharStateChanged
+
+    private void textFirstCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textFirstCharStateChanged
+        // TODO add your handling code here:
+        guiLogic.setBeginChar((int) textFirstChar.getValue());
+    }//GEN-LAST:event_textFirstCharStateChanged
+
+    private void paletteSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paletteSelectorActionPerformed
+        // TODO add your handling code here:
+        this.guiLogic.loadPalette((String) paletteSelector.getSelectedItem());
+        this.guiLogic.displayPalette();
+    }//GEN-LAST:event_paletteSelectorActionPerformed
+
+    private void useAntialiasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAntialiasingActionPerformed
+        // TODO add your handling code here:
+        guiLogic.setUseAntialias(useAntialiasing.isSelected());
+    }//GEN-LAST:event_useAntialiasingActionPerformed
+
+    private void outlineColorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outlineColorButtonActionPerformed
+        // TODO add your handling code here:
+        Color color = JColorChooser.showDialog(this, "Choose Outline Color", this.guiLogic.getOutlineColor());
+        if (color != null) {
+            this.guiLogic.setOutlineColor(color);
+            this.outlineColorButton.setBackground(color);
+        }
+    }//GEN-LAST:event_outlineColorButtonActionPerformed
+
     private void useOutlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useOutlineActionPerformed
         // TODO add your handling code here:
         if (useOutline.isSelected()) {
@@ -679,53 +894,12 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.setOutlineWidth(0);
         }
     }//GEN-LAST:event_useOutlineActionPerformed
-    
-    private void jobGOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobGOActionPerformed
-        // TODO add your handling code here
-        synchronized (this.guiLogic.getSyncObj()) {
-            this.guiLogic.getSyncObj().notify();
-        }
-    }//GEN-LAST:event_jobGOActionPerformed
-    
-    private void fontBoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontBoldActionPerformed
-        // TODO add your handling code here:
-        updateFont();
-    }//GEN-LAST:event_fontBoldActionPerformed
-    
-    private void fontItalicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItalicActionPerformed
-        // TODO add your handling code here:
-        updateFont();
-    }//GEN-LAST:event_fontItalicActionPerformed
-    
-    private void textFirstCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textFirstCharStateChanged
-        // TODO add your handling code here:
-        guiLogic.setBeginChar((int) textFirstChar.getValue());
-    }//GEN-LAST:event_textFirstCharStateChanged
-    
-    private void textLastCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textLastCharStateChanged
-        // TODO add your handling code here:
-        guiLogic.setEndChar((int) textLastChar.getValue());
-    }//GEN-LAST:event_textLastCharStateChanged
-    
+
     private void useGradientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useGradientActionPerformed
         // TODO add your handling code here:
         guiLogic.setUseGradient(useGradient.isSelected());
     }//GEN-LAST:event_useGradientActionPerformed
-    
-    private void useAntialiasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAntialiasingActionPerformed
-        // TODO add your handling code here:
-        guiLogic.setUseAntialias(useAntialiasing.isSelected());
-    }//GEN-LAST:event_useAntialiasingActionPerformed
-    
-    private void outlineColorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outlineColorButtonActionPerformed
-        // TODO add your handling code here:
-        Color color = JColorChooser.showDialog(this, "Choose Outline Color", this.guiLogic.getOutlineColor());
-        if (color != null) {
-            this.guiLogic.setOutlineColor(color);
-            this.outlineColorButton.setBackground(color);
-        }
-    }//GEN-LAST:event_outlineColorButtonActionPerformed
-    
+
     private void bgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bgButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Background Color", this.guiLogic.getBgColor());
@@ -734,7 +908,7 @@ public class GUI extends javax.swing.JFrame {
             this.bgButton.setBackground(color);
         }
     }//GEN-LAST:event_bgButtonActionPerformed
-    
+
     private void fgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fgButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Foreground Color", this.guiLogic.getFgColor());
@@ -743,31 +917,60 @@ public class GUI extends javax.swing.JFrame {
             this.fgButton.setBackground(color);
         }
     }//GEN-LAST:event_fgButtonActionPerformed
-    
-    private void jobSTOPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobSTOPActionPerformed
+
+    private void radioCharCoverageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioCharCoverageActionPerformed
         // TODO add your handling code here:
-        guiLogic.setReqSTOP(true);
-    }//GEN-LAST:event_jobSTOPActionPerformed
-    
-    private void fontFormatSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontFormatSelectorActionPerformed
+        creationMode();
+    }//GEN-LAST:event_radioCharCoverageActionPerformed
+
+    private void radioCharRangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioCharRangeActionPerformed
         // TODO add your handling code here:
-        guiLogic.setFontFormat((String) fontFormatSelector.getSelectedItem());
-    }//GEN-LAST:event_fontFormatSelectorActionPerformed
-    
-    private void fontPreviewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontPreviewButtonActionPerformed
+        creationMode();
+    }//GEN-LAST:event_radioCharRangeActionPerformed
+
+    private void chCoverLatinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverLatinActionPerformed
+        // TODO add your handling code here:        
+        if (chCoverLatin.isSelected()) {
+            if (!guiLogic.getJobTaskList().contains(GUILogic.LATIN)) {
+                guiLogic.getJobTaskList().add(GUILogic.LATIN);
+            }
+        } else {
+            guiLogic.getJobTaskList().remove(GUILogic.LATIN);
+        }
+    }//GEN-LAST:event_chCoverLatinActionPerformed
+
+    private void chCoverLatinExtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverLatinExtActionPerformed
         // TODO add your handling code here:
-        guiLogic.preview(this.fontTestTextField.getText());
-    }//GEN-LAST:event_fontPreviewButtonActionPerformed
-    
-    private void infoAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoAboutActionPerformed
+        if (chCoverLatinExt.isSelected()) {
+            if (!guiLogic.getJobTaskList().contains(GUILogic.LATIN_EXT)) {
+                guiLogic.getJobTaskList().add(GUILogic.LATIN_EXT);
+            }
+        } else {
+            guiLogic.getJobTaskList().remove(GUILogic.LATIN_EXT);
+        }
+    }//GEN-LAST:event_chCoverLatinExtActionPerformed
+
+    private void chCoverCyrillicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverCyrillicActionPerformed
         // TODO add your handling code here:
-        infoAbout();
-    }//GEN-LAST:event_infoAboutActionPerformed
-    
-    private void infoHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoHelpActionPerformed
+        if (chCoverCyrillic.isSelected()) {
+            if (!guiLogic.getJobTaskList().contains(GUILogic.CYRILLIC)) {
+                guiLogic.getJobTaskList().add(GUILogic.CYRILLIC);
+            }
+        } else {
+            guiLogic.getJobTaskList().remove(GUILogic.CYRILLIC);
+        }
+    }//GEN-LAST:event_chCoverCyrillicActionPerformed
+
+    private void chCoverGreekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverGreekActionPerformed
         // TODO add your handling code here:
-        infoHelp();
-    }//GEN-LAST:event_infoHelpActionPerformed
+        if (chCoverGreek.isSelected()) {
+            if (!guiLogic.getJobTaskList().contains(GUILogic.GREEK)) {
+                guiLogic.getJobTaskList().add(GUILogic.GREEK);
+            }
+        } else {
+            guiLogic.getJobTaskList().remove(GUILogic.GREEK);
+        }
+    }//GEN-LAST:event_chCoverGreekActionPerformed
 
     // Center the GUI window into center of the screen
     private void initPosition() {
@@ -802,12 +1005,17 @@ public class GUI extends javax.swing.JFrame {
         this.bgButton.setBackground(Color.CYAN);
         this.outlineColorButton.setBackground(Color.BLUE);
     }
-    
+
     private void initDialog() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("ZDoom pk3 archive (*.pk3)", "pk3");
         this.fileExporter.setFileFilter(filter);
     }
-    
+
+    private void initRadioGroup() {
+        this.radioButtonGroup.add(radioCharCoverage);
+        this.radioButtonGroup.add(radioCharRange);
+    }
+
     private void updateFont() {
         Font font;
         if (fontBold.isSelected() && fontItalic.isSelected()) {
@@ -852,6 +1060,11 @@ public class GUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        GUISplashScreen splashScreen = new GUISplashScreen();
+        splashScreen.setUp();
+        Thread splashUpdater = new Thread(splashScreen, "Splash Screen Updater");
+        splashUpdater.start();
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -862,7 +1075,12 @@ public class GUI extends javax.swing.JFrame {
             }
         });
     }
-    
+
+    // return progress for splash screen purpose
+    public static int getProgress() {
+        return progress;
+    }
+
     private void chooseDstDir() {
         // so in order to save Font we need either to be loaded
         // or image from which we generate to be not null..        
@@ -871,6 +1089,27 @@ public class GUI extends javax.swing.JFrame {
             this.dstFile = fileExporter.getSelectedFile();
             this.guiLogic.setFontPK3(dstFile);
             this.jobGO.setEnabled(true);
+        }
+    }
+
+    //
+    private void creationMode() {
+        if (radioCharCoverage.isSelected()) {
+            guiLogic.setCreationMode(GUILogic.CreationMode.CHAR_COVERAGE);
+            for (Component comp : charCoveragePanel.getComponents()) {
+                comp.setEnabled(true);
+            }
+            for (Component comp : charRangePanel.getComponents()) {
+                comp.setEnabled(false);
+            }
+        } else if (radioCharRange.isSelected()) {
+            guiLogic.setCreationMode(GUILogic.CreationMode.CHAR_RANGE);
+            for (Component comp : charCoveragePanel.getComponents()) {
+                comp.setEnabled(false);
+            }
+            for (Component comp : charRangePanel.getComponents()) {
+                comp.setEnabled(true);
+            }
         }
     }
 
@@ -894,16 +1133,13 @@ public class GUI extends javax.swing.JFrame {
         URL icon_url = getClass().getResource(RESOURCES_DIR + LICENSE_LOGO_FILE_NAME);
         if (icon_url != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append("<html><b>VERSION 1.0.1 - JAGUAR (PUBLIC BUILD reviewed on 2019-09-07 at 19:30).</b></html>\n");
+            sb.append("<html><b>VERSION 1.0.2 - KOREANS (PUBLIC BUILD reviewed on 2019-09-10 at 13:00).</b></html>\n");
             sb.append("<html><b>This software is free software, </b></html>\n");
             sb.append("<html><b>licensed under GNU General Public License (GPL).</b></html>\n");
             sb.append("\n");
             sb.append("Changelog:\n");
-            sb.append("\t- Fixed displaying two messages, one after the other\n");
-            sb.append("\t  when job is terminated (stopped by the user).\n");
-            sb.append("\t- Disabling reset when job is under way.\n");
-            sb.append("\t- Label \"Font preview:\" when preview is clicked is deleted.\n");
-            sb.append("\t  Obscuring the preview.\n");
+            sb.append("\t- Creation split into two modes: \"Char Coverage\" and \"Char Range.\"\n");
+            sb.append("\t- Coverage supports four scripts: Latin, Latin Extented, Cyrillic and Greek.\n");
             sb.append("\n");
             sb.append("Objective:\n");
             sb.append("\tThe purpose of this program is creating Unicode Fonts for \n");
@@ -936,7 +1172,7 @@ public class GUI extends javax.swing.JFrame {
             }
         }
     }
-    
+
     public void reset() {
         this.fontSelector.setSelectedIndex(0);
         this.fontBold.setSelected(false);
@@ -945,32 +1181,45 @@ public class GUI extends javax.swing.JFrame {
         this.textFirstChar.setValue(32);
         this.textLastChar.setValue(127);
         this.textMultiplier.setValue(1.0);
-        
+
         this.fontFormatSelector.setSelectedIndex(0);
         this.fontTestTextField.setText("Quick Brown Fox Jumps Over The Lazy Dog");
-        
+
+        this.radioCharCoverage.setSelected(true);
+        this.chCoverLatin.setSelected(false);
+        this.chCoverLatinExt.setSelected(false);
+        this.chCoverCyrillic.setSelected(false);
+        this.chCoverGreek.setSelected(false);
+        this.creationMode();
+
         this.fgButton.setBackground(Color.YELLOW);
         this.bgButton.setBackground(Color.CYAN);
         this.outlineColorButton.setBackground(Color.BLUE);
         this.widthAmount.setValue(1);
         this.widthAmount.setEnabled(false);
         this.paletteSelector.setSelectedIndex(0);
-        
+
         this.useGradient.setSelected(false);
         this.useOutline.setSelected(false);
         this.useAntialiasing.setSelected(false);
         this.widthAmount.setValue(1);
-        
+
         this.dstFile = null;
         this.jobGO.setEnabled(false);
         this.jobProgress.setValue(0);
-        
+
         this.guiLogic.reset();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bgButton;
     private javax.swing.JLabel bgLabel;
+    private javax.swing.JCheckBox chCoverCyrillic;
+    private javax.swing.JCheckBox chCoverGreek;
+    private javax.swing.JCheckBox chCoverLatin;
+    private javax.swing.JCheckBox chCoverLatinExt;
+    private javax.swing.JPanel charCoveragePanel;
+    private javax.swing.JPanel charRangePanel;
     private javax.swing.JPanel effectsPanel;
     private javax.swing.JButton fgButton;
     private javax.swing.JLabel fgLabel;
@@ -992,11 +1241,11 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> fontSelector;
     private javax.swing.JSpinner fontSize;
     private javax.swing.JLabel fontSizeLabel;
+    private javax.swing.JLabel fontTestLabel;
     private javax.swing.JTextField fontTestTextField;
     private javax.swing.JMenuItem infoAbout;
     private javax.swing.JMenuItem infoHelp;
     private javax.swing.JMenu infoMenu;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JButton jobGO;
@@ -1011,6 +1260,10 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel palLabel;
     private javax.swing.JPanel palettePreview;
     private javax.swing.JComboBox<String> paletteSelector;
+    private javax.swing.ButtonGroup radioButtonGroup;
+    private javax.swing.JRadioButton radioCharCoverage;
+    private javax.swing.JRadioButton radioCharRange;
+    private javax.swing.JPanel radioPanel;
     private javax.swing.JSpinner textFirstChar;
     private javax.swing.JSpinner textLastChar;
     private javax.swing.JSpinner textMultiplier;
