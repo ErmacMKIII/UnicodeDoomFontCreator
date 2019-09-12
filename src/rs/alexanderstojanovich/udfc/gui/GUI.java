@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.util.Pair;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -65,7 +64,7 @@ public class GUI extends javax.swing.JFrame {
     private static final String HELP_FILE_NAME = "udfc_help.txt";
 
     // internal gui logic
-    private GUILogic guiLogic;
+    private final GUILogic guiLogic;
 
     // choosen file as destination for export
     private File dstFile;
@@ -81,24 +80,24 @@ public class GUI extends javax.swing.JFrame {
         GUI.progress += 25;
         initPosition();
         initFontSelector();
+        GUI.progress += 10;
         initColorButtons();
         initUDFCLogos();
         initDialog();
         initRadioGroup();
         GUI.progress += 8;
         List<JComponent> compList = new ArrayList<JComponent>();
-
         compList.add(jobOutDir);
         compList.add(jobGO);
         compList.add(jobSTOP);
-
+        GUI.progress += 12;
         compList.add(fileExport);
         compList.add(fileExportAs);
         compList.add(fileSTOP);
         compList.add(fileReset);
         GUI.progress += 12;
         this.guiLogic = new GUILogic(this.palettePreview, this.jobProgress, compList);
-        GUI.progress += 55;
+        GUI.progress += 33;
     }
 
     /**
@@ -146,16 +145,21 @@ public class GUI extends javax.swing.JFrame {
         fgButton = new javax.swing.JButton();
         bgLabel = new javax.swing.JLabel();
         bgButton = new javax.swing.JButton();
-        useGradient = new javax.swing.JCheckBox();
-        useOutline = new javax.swing.JCheckBox();
         outlineLabel = new javax.swing.JLabel();
         outlineColorButton = new javax.swing.JButton();
+        shLabel = new javax.swing.JLabel();
+        shColorButton = new javax.swing.JButton();
+        useGradient = new javax.swing.JCheckBox();
+        useOutline = new javax.swing.JCheckBox();
         widthLabel = new javax.swing.JLabel();
         widthAmount = new javax.swing.JSpinner();
         useAntialiasing = new javax.swing.JCheckBox();
+        useShadow = new javax.swing.JCheckBox();
         palLabel = new javax.swing.JLabel();
         paletteSelector = new javax.swing.JComboBox<>();
         palettePreview = new javax.swing.JPanel();
+        shadowAngleLabel = new javax.swing.JLabel();
+        shadowAngleValue = new javax.swing.JSpinner();
         jobPanel = new javax.swing.JPanel();
         jobOutDir = new javax.swing.JButton();
         jobSTOP = new javax.swing.JButton();
@@ -225,7 +229,7 @@ public class GUI extends javax.swing.JFrame {
 
         textMultiplierLabel.setText("Multiplier:");
 
-        textMultiplier.setModel(new javax.swing.SpinnerNumberModel(1.0d, 1.0d, 10.0d, 0.1d));
+        textMultiplier.setModel(new javax.swing.SpinnerNumberModel(1.0d, 1.0d, 10.0d, 0.10000000149011612d));
         textMultiplier.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 textMultiplierStateChanged(evt);
@@ -406,8 +410,8 @@ public class GUI extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, fontPanelLayout.createSequentialGroup()
+                                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(fontPanelLayout.createSequentialGroup()
                                         .addGap(27, 27, 27)
                                         .addComponent(fontBold)
                                         .addGap(12, 12, 12)
@@ -415,12 +419,13 @@ public class GUI extends javax.swing.JFrame {
                                         .addGap(18, 18, 18)
                                         .addComponent(fontSizeLabel)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, fontPanelLayout.createSequentialGroup()
+                                        .addComponent(fontSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
                                         .addComponent(fontNameLabel)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(fontSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(fontSelector, 0, 248, Short.MAX_VALUE)
+                                        .addGap(18, 18, 18)))
                                 .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
                                         .addComponent(fontFormatLabel)
@@ -432,16 +437,16 @@ public class GUI extends javax.swing.JFrame {
                                         .addComponent(textMultiplier, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                 .addGap(9, 9, 9))
                             .addGroup(fontPanelLayout.createSequentialGroup()
-                                .addComponent(udfc_suppd_label)
-                                .addGap(0, 0, 0)
-                                .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, fontPanelLayout.createSequentialGroup()
-                                .addComponent(fontTestLabel)
+                                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(udfc_suppd_label)
+                                    .addGroup(fontPanelLayout.createSequentialGroup()
+                                        .addComponent(fontTestLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fontPreviewButton)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontPreviewButton)
-                                .addGap(10, 10, 10))))
+                                .addComponent(tstLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(fontPanelLayout.createSequentialGroup()
                         .addComponent(radioPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -475,14 +480,18 @@ public class GUI extends javax.swing.JFrame {
                         .addComponent(charRangePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(udfc_suppd_label, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fontTestLabel)
-                    .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fontPreviewButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(tstLabel)
-                .addGap(0, 0, 0))
+                .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(fontPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(tstLabel)
+                        .addGap(44, 44, 44))
+                    .addGroup(fontPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(fontPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(fontTestLabel)
+                            .addComponent(fontTestTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(fontPreviewButton))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         fontPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {charRangePanel, radioPanel});
@@ -509,6 +518,24 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        outlineLabel.setText("Outline color:");
+
+        outlineColorButton.setBorder(null);
+        outlineColorButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                outlineColorButtonActionPerformed(evt);
+            }
+        });
+
+        shLabel.setText("Shadow color:");
+
+        shColorButton.setBorder(null);
+        shColorButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shColorButtonActionPerformed(evt);
+            }
+        });
+
         useGradient.setText("Gradient");
         useGradient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -523,15 +550,6 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        outlineLabel.setText("Outline color:");
-
-        outlineColorButton.setBorder(null);
-        outlineColorButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                outlineColorButtonActionPerformed(evt);
-            }
-        });
-
         widthLabel.setText("Width:");
 
         widthAmount.setModel(new javax.swing.SpinnerNumberModel(1, 1, 10, 1));
@@ -541,6 +559,13 @@ public class GUI extends javax.swing.JFrame {
         useAntialiasing.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 useAntialiasingActionPerformed(evt);
+            }
+        });
+
+        useShadow.setText("Shadow");
+        useShadow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useShadowActionPerformed(evt);
             }
         });
 
@@ -557,6 +582,16 @@ public class GUI extends javax.swing.JFrame {
         palettePreview.setPreferredSize(new java.awt.Dimension(240, 240));
         palettePreview.setLayout(new java.awt.GridLayout(16, 16, 1, 1));
 
+        shadowAngleLabel.setText("Angle:");
+
+        shadowAngleValue.setModel(new javax.swing.SpinnerNumberModel(45, 0, 360, 1));
+        shadowAngleValue.setEnabled(false);
+        shadowAngleValue.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                shadowAngleValueStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout effectsPanelLayout = new javax.swing.GroupLayout(effectsPanel);
         effectsPanel.setLayout(effectsPanelLayout);
         effectsPanelLayout.setHorizontalGroup(
@@ -565,31 +600,53 @@ public class GUI extends javax.swing.JFrame {
                 .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(effectsPanelLayout.createSequentialGroup()
                         .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(fgLabel)
-                            .addComponent(bgLabel)
-                            .addComponent(outlineLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(palLabel, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(paletteSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(outlineColorButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(bgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(effectsPanelLayout.createSequentialGroup()
-                        .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(useGradient)
                             .addGroup(effectsPanelLayout.createSequentialGroup()
                                 .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(useAntialiasing)
-                                    .addComponent(useOutline))
+                                    .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(bgLabel)
+                                        .addComponent(outlineLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                                    .addGroup(effectsPanelLayout.createSequentialGroup()
+                                        .addContainerGap()
+                                        .addComponent(fgLabel)))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(widthLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(outlineColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(bgButton, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(fgButton, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(useGradient)
+                            .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, effectsPanelLayout.createSequentialGroup()
+                                    .addGap(61, 61, 61)
+                                    .addComponent(palLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(paletteSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, effectsPanelLayout.createSequentialGroup()
+                                    .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(useAntialiasing)
+                                        .addComponent(useOutline)
+                                        .addComponent(useShadow))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(effectsPanelLayout.createSequentialGroup()
+                                            .addComponent(shadowAngleLabel)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(shadowAngleValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(effectsPanelLayout.createSequentialGroup()
+                                            .addComponent(widthLabel)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, effectsPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(shLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(shColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        effectsPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {bgButton, fgButton, outlineColorButton, shColorButton});
+
         effectsPanelLayout.setVerticalGroup(
             effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(effectsPanelLayout.createSequentialGroup()
@@ -608,6 +665,10 @@ public class GUI extends javax.swing.JFrame {
                             .addComponent(outlineColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(shLabel)
+                            .addComponent(shColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(10, 10, 10)
+                        .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(paletteSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(palLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -618,7 +679,13 @@ public class GUI extends javax.swing.JFrame {
                             .addComponent(widthLabel)
                             .addComponent(widthAmount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(useAntialiasing))
+                        .addComponent(useAntialiasing)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(effectsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(shadowAngleLabel)
+                                .addComponent(shadowAngleValue, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(useShadow)))
                     .addComponent(palettePreview, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -660,15 +727,16 @@ public class GUI extends javax.swing.JFrame {
             jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jobPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jobPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jobProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jobPanelLayout.createSequentialGroup()
-                        .addComponent(jobOutDir)
-                        .addGap(18, 18, 18)
-                        .addComponent(jobSTOP, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
-                        .addComponent(jobGO, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(jobOutDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+                .addComponent(jobSTOP)
+                .addGap(34, 34, 34)
+                .addComponent(jobGO)
                 .addContainerGap())
+            .addGroup(jobPanelLayout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(jobProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(6, 6, 6))
         );
 
         jobPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jobGO, jobOutDir, jobSTOP});
@@ -683,6 +751,8 @@ public class GUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jobProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
+
+        jobPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jobGO, jobOutDir, jobSTOP});
 
         getContentPane().add(jobPanel);
 
@@ -796,9 +866,11 @@ public class GUI extends javax.swing.JFrame {
 
     private void fileExportAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExportAsActionPerformed
         // TODO add your handling code here:
-        chooseDstDir();
-        synchronized (this.guiLogic.getSyncObj()) {
-            this.guiLogic.getSyncObj().notify();
+        boolean val = chooseDstDir();
+        if (val) {
+            synchronized (this.guiLogic.getSyncObj()) {
+                this.guiLogic.getSyncObj().notify();
+            }
         }
     }//GEN-LAST:event_fileExportAsActionPerformed
 
@@ -809,7 +881,7 @@ public class GUI extends javax.swing.JFrame {
 
     private void textMultiplierStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textMultiplierStateChanged
         // TODO add your handling code here:
-        guiLogic.setMultiplier((float) this.textMultiplier.getValue());
+        guiLogic.setMultiplier((double) this.textMultiplier.getValue());
     }//GEN-LAST:event_textMultiplierStateChanged
 
     private void jobGOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobGOActionPerformed
@@ -972,6 +1044,26 @@ public class GUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_chCoverGreekActionPerformed
 
+    private void shColorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shColorButtonActionPerformed
+        // TODO add your handling code here:
+        Color color = JColorChooser.showDialog(this, "Choose Shadow Color", this.guiLogic.getShadowColor());
+        if (color != null) {
+            this.guiLogic.setShadowColor(color);
+            this.shColorButton.setBackground(color);
+        }
+    }//GEN-LAST:event_shColorButtonActionPerformed
+
+    private void useShadowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useShadowActionPerformed
+        // TODO add your handling code here:
+        this.guiLogic.setUseShadow(this.useShadow.isSelected());
+        this.shadowAngleValue.setEnabled(this.useShadow.isSelected());
+    }//GEN-LAST:event_useShadowActionPerformed
+
+    private void shadowAngleValueStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_shadowAngleValueStateChanged
+        // TODO add your handling code here:
+        this.guiLogic.setShadowAngle((int) shadowAngleValue.getValue());
+    }//GEN-LAST:event_shadowAngleValueStateChanged
+
     // Center the GUI window into center of the screen
     private void initPosition() {
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -1004,6 +1096,7 @@ public class GUI extends javax.swing.JFrame {
         this.fgButton.setBackground(Color.YELLOW);
         this.bgButton.setBackground(Color.CYAN);
         this.outlineColorButton.setBackground(Color.BLUE);
+        this.shColorButton.setBackground(Color.GRAY);
     }
 
     private void initDialog() {
@@ -1081,15 +1174,18 @@ public class GUI extends javax.swing.JFrame {
         return progress;
     }
 
-    private void chooseDstDir() {
+    private boolean chooseDstDir() {
         // so in order to save Font we need either to be loaded
         // or image from which we generate to be not null..        
+        boolean chosen = false;
         int returnVal = fileExporter.showDialog(this, "Output Directory");
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             this.dstFile = fileExporter.getSelectedFile();
             this.guiLogic.setFontPK3(dstFile);
             this.jobGO.setEnabled(true);
+            chosen = true;
         }
+        return chosen;
     }
 
     //
@@ -1133,13 +1229,14 @@ public class GUI extends javax.swing.JFrame {
         URL icon_url = getClass().getResource(RESOURCES_DIR + LICENSE_LOGO_FILE_NAME);
         if (icon_url != null) {
             StringBuilder sb = new StringBuilder();
-            sb.append("<html><b>VERSION 1.0.2 - KOREANS (PUBLIC BUILD reviewed on 2019-09-10 at 13:00).</b></html>\n");
+            sb.append("<html><b>VERSION 1.0.2 - KOREANS (PUBLIC BUILD reviewed on 2019-09-12 at 09:30).</b></html>\n");
             sb.append("<html><b>This software is free software, </b></html>\n");
             sb.append("<html><b>licensed under GNU General Public License (GPL).</b></html>\n");
             sb.append("\n");
             sb.append("Changelog:\n");
             sb.append("\t- Creation split into two modes: \"Char Coverage\" and \"Char Range.\"\n");
             sb.append("\t- Coverage supports four scripts: Latin, Latin Extented, Cyrillic and Greek.\n");
+            sb.append("\t- New effect feature - \"Shadow\". [Kinsie]\n");
             sb.append("\n");
             sb.append("Objective:\n");
             sb.append("\tThe purpose of this program is creating Unicode Fonts for \n");
@@ -1195,6 +1292,7 @@ public class GUI extends javax.swing.JFrame {
         this.fgButton.setBackground(Color.YELLOW);
         this.bgButton.setBackground(Color.CYAN);
         this.outlineColorButton.setBackground(Color.BLUE);
+        this.shColorButton.setBackground(Color.GRAY);
         this.widthAmount.setValue(1);
         this.widthAmount.setEnabled(false);
         this.paletteSelector.setSelectedIndex(0);
@@ -1202,7 +1300,10 @@ public class GUI extends javax.swing.JFrame {
         this.useGradient.setSelected(false);
         this.useOutline.setSelected(false);
         this.useAntialiasing.setSelected(false);
+        this.useShadow.setSelected(false);
         this.widthAmount.setValue(1);
+        this.shadowAngleValue.setEnabled(false);
+        this.shadowAngleValue.setValue(45);
 
         this.dstFile = null;
         this.jobGO.setEnabled(false);
@@ -1264,6 +1365,10 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JRadioButton radioCharCoverage;
     private javax.swing.JRadioButton radioCharRange;
     private javax.swing.JPanel radioPanel;
+    private javax.swing.JButton shColorButton;
+    private javax.swing.JLabel shLabel;
+    private javax.swing.JLabel shadowAngleLabel;
+    private javax.swing.JSpinner shadowAngleValue;
     private javax.swing.JSpinner textFirstChar;
     private javax.swing.JSpinner textLastChar;
     private javax.swing.JSpinner textMultiplier;
@@ -1273,6 +1378,7 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox useAntialiasing;
     private javax.swing.JCheckBox useGradient;
     private javax.swing.JCheckBox useOutline;
+    private javax.swing.JCheckBox useShadow;
     private javax.swing.JSpinner widthAmount;
     private javax.swing.JLabel widthLabel;
     // End of variables declaration//GEN-END:variables

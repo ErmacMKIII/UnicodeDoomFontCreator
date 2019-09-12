@@ -40,7 +40,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javafx.util.Pair;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -52,6 +51,7 @@ import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 import rs.alexanderstojanovich.udfc.util.ColorSample;
 import rs.alexanderstojanovich.udfc.util.Palette;
+import rs.alexanderstojanovich.udfc.util.CharRange;
 
 /**
  *
@@ -79,24 +79,19 @@ public class GUILogic {
     private String fontFormat = "Console Font";
 
     // inventing comparator for proper range sort (and yea image sort)
-    Comparator<Pair<Integer, Integer>> jobTaskComp = new Comparator<Pair<Integer, Integer>>() {
-        @Override
-        public int compare(Pair<Integer, Integer> o1, Pair<Integer, Integer> o2) {
-            return (o1.getKey() - o2.getKey());
-        }
-    };
+    Comparator<CharRange> jobTaskComp = (CharRange o1, CharRange o2) -> (o1.getFirstChar() - o2.getFirstChar());
 
     // char range of latin script
-    public static final Pair<Integer, Integer> LATIN = new Pair<Integer, Integer>(0x0000, 0x00FF);
+    public static final CharRange LATIN = new CharRange(0x0000, 0x00FF);
     // yea but extented
-    public static final Pair<Integer, Integer> LATIN_EXT = new Pair<Integer, Integer>(0x0100, 0x024F);
+    public static final CharRange LATIN_EXT = new CharRange(0x0100, 0x024F);
     // cyrillic
-    public static final Pair<Integer, Integer> CYRILLIC = new Pair<Integer, Integer>(0x0400, 0x04FF);
+    public static final CharRange CYRILLIC = new CharRange(0x0400, 0x04FF);
     // and greek
-    public static final Pair<Integer, Integer> GREEK = new Pair<Integer, Integer>(0x0370, 0x03FF);
+    public static final CharRange GREEK = new CharRange(0x0370, 0x03FF);
 
     // pair of character ranges used for coverage
-    private List<Pair<Integer, Integer>> jobTaskList = new LinkedList<Pair<Integer, Integer>>();
+    private List<CharRange> jobTaskList = new LinkedList<>();
 
     // begin char of character range when
     private int beginChar = 32;
@@ -104,7 +99,7 @@ public class GUILogic {
     private int endChar = 127;
 
     // multiplier of cell size
-    private float multiplier = 1.0f;
+    private double multiplier = 1.0;
 
     // primary color (foreground)
     private Color fgColor = Color.YELLOW;
@@ -112,6 +107,10 @@ public class GUILogic {
     private Color bgColor = Color.CYAN;
     // outline color (if outline has been selected by the user)
     private Color outlineColor = Color.BLUE;
+
+    // shadow color (if shadow has been selected by the user)
+    private Color shadowColor = Color.GRAY;
+
     // outline thickness
     private int outlineWidth = 0;
 
@@ -135,6 +134,12 @@ public class GUILogic {
     private boolean useGradient = false;
     // use antialias for the font (better not)
     private boolean useAntialias = false;
+
+    // use drop shadow feature, cool :)
+    private boolean useShadow = false;
+
+    // shadow angle (degrees)
+    private int shadowAngle = 45;
 
     // object for thread synchronization
     private final Object syncObj = new Object();
@@ -171,6 +176,7 @@ public class GUILogic {
                     go();
                     setEnabledComps();
                     progressBar.setValue(0);
+                    progressBar.validate();
                 }
             }
         };
@@ -277,6 +283,43 @@ public class GUILogic {
                     ColorSample cs = ColorSample.getSample(wr, px, py, outlineWidth);
                     if (pixCol.getAlpha() == 0 && cs.getAlpha() > 0) {
                         chImg.setRGB(px, py, outlineColor.getRGB());
+                    }
+                }
+            }
+        }
+
+        if (useShadow) {
+            WritableRaster wr = chImg.copyData(null);
+            for (int px = 0; px < chImg.getWidth(); px++) {
+                for (int py = 0; py < chImg.getHeight(); py++) {
+                    float cos = (float) Math.cos(Math.toRadians(shadowAngle));
+                    float sin = (float) Math.sin(Math.toRadians(shadowAngle));
+
+                    float dx = px + cos;
+                    float dy = py + sin;
+
+                    if (dx < 0) {
+                        dx = 0;
+                    } else if (dx > chImg.getWidth() - 1) {
+                        dx = chImg.getWidth() - 1;
+                    }
+
+                    if (dy < 0) {
+                        dy = 0;
+                    } else if (dy > chImg.getHeight() - 1) {
+                        dy = chImg.getHeight() - 1;
+                    }
+
+                    Color dstPixCol = new Color(chImg.getRGB(Math.round(dx), Math.round(dy)), true);
+                    ColorSample csg = ColorSample.getGaussianBlurSample(wr, px, py);
+                    float csa = csg.getAlpha() / 255.0f;
+                    if (dstPixCol.getAlpha() == 0 && csa >= 0.195346f) {
+                        float alpha_sqrt = (float) Math.sqrt(csa);
+                        float red = alpha_sqrt * shadowColor.getRed() / 255.0f;
+                        float green = alpha_sqrt * shadowColor.getGreen() / 255.0f;
+                        float blue = alpha_sqrt * shadowColor.getBlue() / 255.0f;
+                        Color fineCol = new Color(red, green, blue);
+                        chImg.setRGB(Math.round(dx), Math.round(dy), fineCol.getRGB());
                     }
                 }
             }
@@ -393,8 +436,8 @@ public class GUILogic {
                 case CHAR_COVERAGE:
                     jobTaskList.sort(jobTaskComp);
                     upper:
-                    for (Pair<Integer, Integer> pair : jobTaskList) {
-                        for (int i = pair.getKey(); i <= pair.getValue(); i++) {
+                    for (CharRange pair : jobTaskList) {
+                        for (int i = pair.getFirstChar(); i <= pair.getLastChar(); i++) {
                             if (reqSTOP) {
                                 break upper;
                             }
@@ -415,7 +458,7 @@ public class GUILogic {
                             zos.closeEntry();
                             // closing the entry!
 
-                            progress += 1.0f / (float) ((pair.getValue() - pair.getKey() + 1) * jobTaskList.size());
+                            progress += 1.0f / (float) ((pair.getLastChar() - pair.getFirstChar() + 1) * jobTaskList.size());
                             progressBar.setValue(Math.round(100 * progress));
                             progressBar.validate();
                         }
@@ -460,6 +503,27 @@ public class GUILogic {
                 }
             }
         }
+
+        // when job is empty - some error messages
+        boolean error = false;
+        if (creationMode == CreationMode.CHAR_COVERAGE && jobTaskList.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Job is empty - no characters covered!",
+                    "Job Result",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            error = true;
+        } else if (creationMode == CreationMode.CHAR_RANGE && beginChar > endChar) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Job is empty - no characters in range!",
+                    "Job Result",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            error = true;
+        }
+
         // if user demanded stop with stop signal (by pressing the button or via menu)!
         if (reqSTOP) {
             JOptionPane.showMessageDialog(
@@ -468,7 +532,7 @@ public class GUILogic {
                     "Job Result",
                     JOptionPane.ERROR_MESSAGE
             );
-        } else {
+        } else if (!error) {
             JOptionPane.showMessageDialog(
                     null,
                     "Job finished successfuly!",
@@ -557,6 +621,7 @@ public class GUILogic {
         jobTaskList.clear();
 
         myFont = new Font("Courier New", Font.PLAIN, 12);
+        fontPK3 = null;
 
         beginChar = 32;
         endChar = 127;
@@ -564,11 +629,15 @@ public class GUILogic {
         fgColor = Color.YELLOW;
         bgColor = Color.CYAN;
         outlineColor = Color.BLUE;
+        shadowColor = Color.GRAY;
         outlineWidth = 0;
 
         palette = "None";
         useGradient = false;
         useAntialias = false;
+        useShadow = false;
+
+        shadowAngle = 45;
 
         reqSTOP = false;
 
@@ -618,11 +687,19 @@ public class GUILogic {
         this.fontFormat = fontFormat;
     }
 
-    public List<Pair<Integer, Integer>> getJobTaskList() {
+    public Comparator<CharRange> getJobTaskComp() {
+        return jobTaskComp;
+    }
+
+    public void setJobTaskComp(Comparator<CharRange> jobTaskComp) {
+        this.jobTaskComp = jobTaskComp;
+    }
+
+    public List<CharRange> getJobTaskList() {
         return jobTaskList;
     }
 
-    public void setJobTaskList(List<Pair<Integer, Integer>> jobTaskList) {
+    public void setJobTaskList(List<CharRange> jobTaskList) {
         this.jobTaskList = jobTaskList;
     }
 
@@ -642,11 +719,11 @@ public class GUILogic {
         this.endChar = endChar;
     }
 
-    public float getMultiplier() {
+    public double getMultiplier() {
         return multiplier;
     }
 
-    public void setMultiplier(float multiplier) {
+    public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
     }
 
@@ -672,6 +749,14 @@ public class GUILogic {
 
     public void setOutlineColor(Color outlineColor) {
         this.outlineColor = outlineColor;
+    }
+
+    public Color getShadowColor() {
+        return shadowColor;
+    }
+
+    public void setShadowColor(Color shadowColor) {
+        this.shadowColor = shadowColor;
     }
 
     public int getOutlineWidth() {
@@ -736,6 +821,22 @@ public class GUILogic {
 
     public void setUseAntialias(boolean useAntialias) {
         this.useAntialias = useAntialias;
+    }
+
+    public boolean isUseShadow() {
+        return useShadow;
+    }
+
+    public void setUseShadow(boolean useShadow) {
+        this.useShadow = useShadow;
+    }
+
+    public int getShadowAngle() {
+        return shadowAngle;
+    }
+
+    public void setShadowAngle(int shadowAngle) {
+        this.shadowAngle = shadowAngle;
     }
 
     public Thread getJobWorker() {

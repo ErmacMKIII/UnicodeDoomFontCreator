@@ -45,7 +45,7 @@ public class ColorSample { // used primarily for drawing outline in GUILogic
     }
 
     //--------------------------------------------------------------------------
-    // B - ESSENTIAL STATIC METHOD
+    // B - ESSENTIAL STATIC METHODS
     //--------------------------------------------------------------------------    
     // B1 - Get Sample from all of adjacent pixels on given the offset
     public static ColorSample getSample(WritableRaster wr, int px, int py, int offset) {
@@ -85,6 +85,62 @@ public class ColorSample { // used primarily for drawing outline in GUILogic
         //----------------------------------------------------------------------        
         // OUTPUT LOGIC
         return new ColorSample(avgR, avgG, avgB, avgA);
+    }
+
+    // B2 - Get Sample from all of adjacent pixels with Gauss kernel coefficients for single pass
+    public static ColorSample getGaussianBlurSample(WritableRaster wr, int px, int py) {
+        // INPUT LOGIC
+        final float a = 0.123317f; // up-left-right-down
+        final float b = 0.077847f; // diagonal
+        final float c = 0.195346f; // center  
+        int[] offX = {Math.max(px - 1, 0), px, Math.min(px + 1, wr.getWidth() - 1)};
+        int[] offY = {Math.max(py - 1, 0), py, Math.min(py + 1, wr.getHeight() - 1)};
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        int alpha = 0;
+        // [0] - RED
+        red += b * (wr.getSample(offX[0], offY[0], 0)
+                + wr.getSample(offX[2], offY[0], 0)
+                + wr.getSample(offX[0], offY[2], 0)
+                + wr.getSample(offX[2], offY[2], 0));
+
+        red += c * (wr.getSample(offX[1], offY[1], 0));
+
+        red += a * (wr.getSample(offX[1], offY[0], 0) + wr.getSample(offX[0], offY[1], 0)
+                + wr.getSample(offX[1], offY[2], 0) + wr.getSample(offX[2], offY[1], 0));
+        // [1] - GREEN
+        green += b * (wr.getSample(offX[0], offY[0], 1)
+                + wr.getSample(offX[2], offY[0], 1)
+                + wr.getSample(offX[0], offY[2], 1)
+                + wr.getSample(offX[2], offY[2], 1));
+
+        green += c * (wr.getSample(offX[1], offY[1], 1));
+
+        green += a * (wr.getSample(offX[1], offY[0], 1) + wr.getSample(offX[0], offY[1], 1)
+                + wr.getSample(offX[1], offY[2], 1) + wr.getSample(offX[2], offY[1], 1));
+        // [2] - BLUE
+        blue += b * (wr.getSample(offX[0], offY[0], 2)
+                + wr.getSample(offX[2], offY[0], 2)
+                + wr.getSample(offX[0], offY[2], 2)
+                + wr.getSample(offX[2], offY[2], 2));
+
+        blue += c * (wr.getSample(offX[1], offY[1], 2));
+
+        blue += a * (wr.getSample(offX[1], offY[0], 2) + wr.getSample(offX[0], offY[1], 2)
+                + wr.getSample(offX[1], offY[2], 2) + wr.getSample(offX[2], offY[1], 2));
+        // [3] - ALPHA
+        alpha += b * (wr.getSample(offX[0], offY[0], 3)
+                + wr.getSample(offX[2], offY[0], 3)
+                + wr.getSample(offX[0], offY[2], 3)
+                + wr.getSample(offX[2], offY[2], 3));
+
+        alpha += c * (wr.getSample(offX[1], offY[1], 3));
+
+        alpha += a * (wr.getSample(offX[1], offY[0], 3) + wr.getSample(offX[0], offY[1], 3)
+                + wr.getSample(offX[1], offY[2], 3) + wr.getSample(offX[2], offY[1], 3));
+        // FINALLY, OUTPUT LOGIC
+        return new ColorSample(red, green, blue, alpha);
     }
 
     //--------------------------------------------------------------------------

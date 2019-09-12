@@ -15,4 +15,6 @@
 
  - Coverage supports four scripts: Latin, Latin Extented, Cyrillic and Greek.   
  
+ - New effect feature - "Shadow". [Kinsie]
+
 Enjoy using this program! - Ermac

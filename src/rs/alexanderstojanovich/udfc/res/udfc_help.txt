@@ -15,7 +15,7 @@
     - Character cell size multiplier,
     - Colors,
     - Palette,
-    - Additional effects (gradient, outline and anti-aliasing).        
+    - Additional effects (gradient, outline, anti-aliasing and shadow).        
 
 <html><b>- FONT PREVIEW </b><html>
     At any time user can preview font which would 
