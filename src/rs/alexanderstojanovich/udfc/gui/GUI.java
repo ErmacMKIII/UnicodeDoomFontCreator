@@ -767,6 +767,7 @@ public class GUI extends javax.swing.JFrame {
         fileMenu.add(fileExportAs);
 
         fileSTOP.setText("Stop");
+        fileSTOP.setEnabled(false);
         fileSTOP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fileSTOPActionPerformed(evt);
@@ -823,17 +824,17 @@ public class GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.chooseDstDir();
     }//GEN-LAST:event_jobOutDirActionPerformed
-    
+
     private void fileQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileQuitActionPerformed
         // TODO add your handling code here:
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }//GEN-LAST:event_fileQuitActionPerformed
-    
+
     private void fileResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileResetActionPerformed
         // TODO add your handling code here:
         this.reset();
     }//GEN-LAST:event_fileResetActionPerformed
-    
+
     private void fontSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSelectorActionPerformed
         // TODO add your handling code here:
         Font font;
@@ -850,7 +851,7 @@ public class GUI extends javax.swing.JFrame {
             this.guiLogic.setMyFont(font);
         }
     }//GEN-LAST:event_fontSelectorActionPerformed
-    
+
     private void fileExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExportActionPerformed
         // TODO add your handling code here:
         if (dstFile == null) {
@@ -860,7 +861,7 @@ public class GUI extends javax.swing.JFrame {
             this.guiLogic.getSyncObj().notify();
         }
     }//GEN-LAST:event_fileExportActionPerformed
-    
+
     private void fileExportAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileExportAsActionPerformed
         // TODO add your handling code here:
         boolean val = chooseDstDir();
@@ -870,80 +871,80 @@ public class GUI extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_fileExportAsActionPerformed
-    
+
     private void fontSizeStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fontSizeStateChanged
         // TODO add your handling code here:
         updateFont();
     }//GEN-LAST:event_fontSizeStateChanged
-    
+
     private void textMultiplierStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textMultiplierStateChanged
         // TODO add your handling code here:
         guiLogic.setMultiplier((double) this.textMultiplier.getValue());
     }//GEN-LAST:event_textMultiplierStateChanged
-    
+
     private void jobGOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobGOActionPerformed
         // TODO add your handling code here
         synchronized (this.guiLogic.getSyncObj()) {
             this.guiLogic.getSyncObj().notify();
         }
     }//GEN-LAST:event_jobGOActionPerformed
-    
+
     private void fontBoldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontBoldActionPerformed
         // TODO add your handling code here:
         updateFont();
     }//GEN-LAST:event_fontBoldActionPerformed
-    
+
     private void fontItalicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontItalicActionPerformed
         // TODO add your handling code here:
         updateFont();
     }//GEN-LAST:event_fontItalicActionPerformed
-    
+
     private void jobSTOPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobSTOPActionPerformed
         // TODO add your handling code here:
         guiLogic.setReqSTOP(true);
     }//GEN-LAST:event_jobSTOPActionPerformed
-    
+
     private void fontFormatSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontFormatSelectorActionPerformed
         // TODO add your handling code here:
         guiLogic.setFontFormat((String) fontFormatSelector.getSelectedItem());
     }//GEN-LAST:event_fontFormatSelectorActionPerformed
-    
+
     private void fontPreviewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontPreviewButtonActionPerformed
         // TODO add your handling code here:
         guiLogic.preview(this.fontTestTextField.getText());
     }//GEN-LAST:event_fontPreviewButtonActionPerformed
-    
+
     private void infoAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoAboutActionPerformed
         // TODO add your handling code here:
         infoAbout();
     }//GEN-LAST:event_infoAboutActionPerformed
-    
+
     private void infoHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoHelpActionPerformed
         // TODO add your handling code here:
         infoHelp();
     }//GEN-LAST:event_infoHelpActionPerformed
-    
+
     private void textLastCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textLastCharStateChanged
         // TODO add your handling code here:
         guiLogic.setEndChar((int) textLastChar.getValue());
     }//GEN-LAST:event_textLastCharStateChanged
-    
+
     private void textFirstCharStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_textFirstCharStateChanged
         // TODO add your handling code here:
         guiLogic.setBeginChar((int) textFirstChar.getValue());
     }//GEN-LAST:event_textFirstCharStateChanged
-    
+
     private void paletteSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paletteSelectorActionPerformed
         // TODO add your handling code here:
         this.guiLogic.loadPalette((String) paletteSelector.getSelectedItem());
         this.guiLogic.displayPalette();
     }//GEN-LAST:event_paletteSelectorActionPerformed
-    
+
     private void useAntialiasingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAntialiasingActionPerformed
         // TODO add your handling code here:
         guiLogic.setUseAntialias(useAntialiasing.isSelected());
     }//GEN-LAST:event_useAntialiasingActionPerformed
-    
+
     private void outlineColorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outlineColorButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Outline Color", this.guiLogic.getOutlineColor());
@@ -952,7 +953,7 @@ public class GUI extends javax.swing.JFrame {
             this.outlineColorButton.setBackground(color);
         }
     }//GEN-LAST:event_outlineColorButtonActionPerformed
-    
+
     private void useOutlineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useOutlineActionPerformed
         // TODO add your handling code here:
         if (useOutline.isSelected()) {
@@ -963,12 +964,12 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.setOutlineWidth(0);
         }
     }//GEN-LAST:event_useOutlineActionPerformed
-    
+
     private void useGradientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useGradientActionPerformed
         // TODO add your handling code here:
         guiLogic.setUseGradient(useGradient.isSelected());
     }//GEN-LAST:event_useGradientActionPerformed
-    
+
     private void bgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bgButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Background Color", this.guiLogic.getBgColor());
@@ -977,7 +978,7 @@ public class GUI extends javax.swing.JFrame {
             this.bgButton.setBackground(color);
         }
     }//GEN-LAST:event_bgButtonActionPerformed
-    
+
     private void fgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fgButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Foreground Color", this.guiLogic.getFgColor());
@@ -986,17 +987,17 @@ public class GUI extends javax.swing.JFrame {
             this.fgButton.setBackground(color);
         }
     }//GEN-LAST:event_fgButtonActionPerformed
-    
+
     private void radioCharCoverageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioCharCoverageActionPerformed
         // TODO add your handling code here:
         creationMode();
     }//GEN-LAST:event_radioCharCoverageActionPerformed
-    
+
     private void radioCharRangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioCharRangeActionPerformed
         // TODO add your handling code here:
         creationMode();
     }//GEN-LAST:event_radioCharRangeActionPerformed
-    
+
     private void chCoverLatinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverLatinActionPerformed
         // TODO add your handling code here:        
         if (chCoverLatin.isSelected()) {
@@ -1007,7 +1008,7 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.getJobTaskList().remove(GUILogic.LATIN);
         }
     }//GEN-LAST:event_chCoverLatinActionPerformed
-    
+
     private void chCoverLatinExtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverLatinExtActionPerformed
         // TODO add your handling code here:
         if (chCoverLatinExt.isSelected()) {
@@ -1018,7 +1019,7 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.getJobTaskList().remove(GUILogic.LATIN_EXT);
         }
     }//GEN-LAST:event_chCoverLatinExtActionPerformed
-    
+
     private void chCoverCyrillicActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverCyrillicActionPerformed
         // TODO add your handling code here:
         if (chCoverCyrillic.isSelected()) {
@@ -1029,7 +1030,7 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.getJobTaskList().remove(GUILogic.CYRILLIC);
         }
     }//GEN-LAST:event_chCoverCyrillicActionPerformed
-    
+
     private void chCoverGreekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chCoverGreekActionPerformed
         // TODO add your handling code here:
         if (chCoverGreek.isSelected()) {
@@ -1040,7 +1041,7 @@ public class GUI extends javax.swing.JFrame {
             guiLogic.getJobTaskList().remove(GUILogic.GREEK);
         }
     }//GEN-LAST:event_chCoverGreekActionPerformed
-    
+
     private void shColorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shColorButtonActionPerformed
         // TODO add your handling code here:
         Color color = JColorChooser.showDialog(this, "Choose Shadow Color", this.guiLogic.getShadowColor());
@@ -1049,18 +1050,18 @@ public class GUI extends javax.swing.JFrame {
             this.shColorButton.setBackground(color);
         }
     }//GEN-LAST:event_shColorButtonActionPerformed
-    
+
     private void useShadowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useShadowActionPerformed
         // TODO add your handling code here:
         this.guiLogic.setUseShadow(this.useShadow.isSelected());
         this.shadowAngleValue.setEnabled(this.useShadow.isSelected());
     }//GEN-LAST:event_useShadowActionPerformed
-    
+
     private void shadowAngleValueStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_shadowAngleValueStateChanged
         // TODO add your handling code here:
         this.guiLogic.setShadowAngle((int) shadowAngleValue.getValue());
     }//GEN-LAST:event_shadowAngleValueStateChanged
-    
+
     private void fileSTOPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileSTOPActionPerformed
         // TODO add your handling code here:
         this.guiLogic.setReqSTOP(true);
@@ -1100,17 +1101,17 @@ public class GUI extends javax.swing.JFrame {
         this.outlineColorButton.setBackground(Color.BLUE);
         this.shColorButton.setBackground(Color.GRAY);
     }
-    
+
     private void initDialog() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("ZDoom pk3 archive (*.pk3)", "pk3");
         this.fileExporter.setFileFilter(filter);
     }
-    
+
     private void initRadioGroup() {
         this.radioButtonGroup.add(radioCharCoverage);
         this.radioButtonGroup.add(radioCharRange);
     }
-    
+
     private void updateFont() {
         Font font;
         if (fontBold.isSelected() && fontItalic.isSelected()) {
@@ -1175,7 +1176,7 @@ public class GUI extends javax.swing.JFrame {
     public static int getProgress() {
         return progress;
     }
-    
+
     private boolean chooseDstDir() {
         // so in order to save Font we need either to be loaded
         // or image from which we generate to be not null..        
@@ -1271,7 +1272,7 @@ public class GUI extends javax.swing.JFrame {
             }
         }
     }
-    
+
     public void reset() {
         this.fontSelector.setSelectedIndex(0);
         this.fontBold.setSelected(false);
@@ -1280,17 +1281,17 @@ public class GUI extends javax.swing.JFrame {
         this.textFirstChar.setValue(32);
         this.textLastChar.setValue(127);
         this.textMultiplier.setValue(1.0);
-        
+
         this.fontFormatSelector.setSelectedIndex(0);
         this.fontTestTextField.setText("Quick Brown Fox Jumps Over The Lazy Dog");
-        
+
         this.radioCharCoverage.setSelected(true);
         this.chCoverLatin.setSelected(false);
         this.chCoverLatinExt.setSelected(false);
         this.chCoverCyrillic.setSelected(false);
         this.chCoverGreek.setSelected(false);
         this.creationMode();
-        
+
         this.fgButton.setBackground(Color.YELLOW);
         this.bgButton.setBackground(Color.CYAN);
         this.outlineColorButton.setBackground(Color.BLUE);
@@ -1298,7 +1299,7 @@ public class GUI extends javax.swing.JFrame {
         this.widthAmount.setValue(1);
         this.widthAmount.setEnabled(false);
         this.paletteSelector.setSelectedIndex(0);
-        
+
         this.useGradient.setSelected(false);
         this.useOutline.setSelected(false);
         this.useAntialiasing.setSelected(false);
@@ -1306,11 +1307,11 @@ public class GUI extends javax.swing.JFrame {
         this.widthAmount.setValue(1);
         this.shadowAngleValue.setEnabled(false);
         this.shadowAngleValue.setValue(45);
-        
+
         this.dstFile = null;
         this.jobGO.setEnabled(false);
         this.jobProgress.setValue(0);
-        
+
         this.guiLogic.reset();
     }
 

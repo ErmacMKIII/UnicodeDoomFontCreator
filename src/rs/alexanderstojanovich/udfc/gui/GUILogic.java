@@ -138,7 +138,7 @@ public class GUILogic {
     // use drop shadow feature, cool :)
     private boolean useShadow = false;
 
-    // shadow angle (degrees)
+    // shadow angle (degrees) which is clockwise
     private int shadowAngle = 45;
 
     // object for thread synchronization
@@ -287,17 +287,18 @@ public class GUILogic {
                 }
             }
         }
-
+        // if user selected shadow; this is for shadow effect
         if (useShadow) {
             WritableRaster wr = chImg.copyData(null);
             for (int px = 0; px < chImg.getWidth(); px++) {
                 for (int py = 0; py < chImg.getHeight(); py++) {
+                    // calculate dx an dy cuz they are one square away from px and py
                     float cos = (float) Math.cos(Math.toRadians(shadowAngle));
                     float sin = (float) Math.sin(Math.toRadians(shadowAngle));
 
                     float dx = px + cos;
                     float dy = py + sin;
-
+                    // constrain dx and dy to the image bounds    
                     if (dx < 0) {
                         dx = 0;
                     } else if (dx > chImg.getWidth() - 1) {
@@ -311,9 +312,10 @@ public class GUILogic {
                     }
 
                     Color dstPixCol = new Color(chImg.getRGB(Math.round(dx), Math.round(dy)), true);
-                    ColorSample csg = ColorSample.getGaussianBlurSample(wr, px, py);
-                    float csa = csg.getAlpha() / 255.0f;
+                    ColorSample csg = ColorSample.getGaussianBlurSample(wr, px, py); // calc gauss blur
+                    float csa = csg.getAlpha() / 255.0f; // reason behind this value used is to prevent "too many wrong" pixels
                     if (dstPixCol.getAlpha() == 0 && csa >= 0.195346f) {
+                        // to create nice shadow effect multiply shadow color components with alpha_sqrt
                         float alpha_sqrt = (float) Math.sqrt(csa);
                         float red = alpha_sqrt * shadowColor.getRed() / 255.0f;
                         float green = alpha_sqrt * shadowColor.getGreen() / 255.0f;
