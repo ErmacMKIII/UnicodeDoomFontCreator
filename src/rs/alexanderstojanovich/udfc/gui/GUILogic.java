@@ -49,9 +49,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
+import rs.alexanderstojanovich.udfc.util.CharRange;
 import rs.alexanderstojanovich.udfc.util.ColorSample;
 import rs.alexanderstojanovich.udfc.util.Palette;
-import rs.alexanderstojanovich.udfc.util.CharRange;
 
 /**
  *
@@ -201,7 +201,13 @@ public class GUILogic {
     // give char image rendering certain char!
     public BufferedImage giveChImg(char ch) {
         // define sampler
-        final double sampler = 2.0 * multiplier * outlineWidth;
+        double sampler = multiplier;
+        if (outlineWidth > 0) {
+            sampler *= 2.0 * outlineWidth;
+        }
+        if (useShadow) {
+            sampler *= 2.0;
+        }
         // create the FontRenderContext object which helps us to measure the text
         // subsequently craeting the rectangle for measuring the width and height
         // and the glyph vector containing the character, of course!
