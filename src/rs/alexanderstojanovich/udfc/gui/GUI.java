@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2019 Coa
+/* 
+ * Copyright (C) 2020 Alexander Stojanovich <coas91@rocketmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
- * @author Coa
+ * @author Alexander Stojanovich <coas91@rocketmail.com>
  */
 public class GUI extends javax.swing.JFrame {
 
@@ -1245,7 +1245,7 @@ public class GUI extends javax.swing.JFrame {
             sb.append("\tThe purpose of this program is creating Unicode Fonts for \n");
             sb.append("\tthe newest releases of GZDoom.\n");
             sb.append("\n");
-            sb.append("<html><b>Copyright © 2019</b></html>\n");
+            sb.append("<html><b>Copyright © 2020</b></html>\n");
             sb.append("<html><b>Alexander \"Ermac\" Stojanovich</b></html>\n");
             ImageIcon icon = new ImageIcon(icon_url);
             JOptionPane.showMessageDialog(this, sb.toString(), "About", JOptionPane.INFORMATION_MESSAGE, icon);
